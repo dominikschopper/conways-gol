@@ -1,0 +1,1 @@
+# A JS Implementation of Conways Game of Life
