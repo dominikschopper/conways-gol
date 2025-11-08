@@ -2,13 +2,15 @@
   // Visit https://aka.ms/tsconfig to read more about this file
   "compilerOptions": {
     // File Layout
-    // "rootDir": "./src",
+    // "rootDir": "./src/scripts/",
     // "outDir": "./dist",
 
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
-    "module": "nodenext",
+    "module": "esnext",
     "target": "esnext",
+    "moduleResolution": "bundler",
+    "emitDeclarationOnly": true,
     "allowImportingTsExtensions": true,
     "noEmit": true,
     "types": [],
