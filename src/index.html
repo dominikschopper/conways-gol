@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conways Game of Life</title>
+
+    <!-- style loading -->
+    <link rel="stylesheet" href="styles/reset.css">
+    <link rel="stylesheet" href="styles/base.css">
+    <link rel="stylesheet" href="styles/game.css">
+</head>
+
+<body class="bg-silver">
+    <div class="layout bg-white">
+        <header>
+            Conways of Life
+        </header>
+        <main>
+            <h1>Conways Game of Life / pure TS version</h1>
+            <div id="base">
+                <div id="board" class="game"></div>
+            </div>
+        </main>
+        <footer>
+            created by DoScho
+        </footer>
+    </div>
+    <script type="module" src="./scripts/main.ts"></script>
+    <script type="module">
+        import { drawBoard, initializeInteractions } from './scripts/main'
+        initializeInteractions();
+        drawBoard();
+    </script>
+</body>
+
+</html>
