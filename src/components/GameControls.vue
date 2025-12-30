@@ -22,9 +22,12 @@ const speedLabel = computed(() => {
 })
 
 const handleSpeedChange = (event: Event) => {
-  const target = event.target as HTMLInputElement
-  emit('update:tickRate', Number(target.value))
-}
+  const target = event.target as HTMLInputElement;
+  // Invert the slider value so left = slow, right = fast
+  const sliderValue = Number(target.value);
+  const invertedValue = 1010 - sliderValue;
+  emit('update:tickRate', invertedValue);
+};
 </script>
 
 <template>
@@ -82,7 +85,7 @@ const handleSpeedChange = (event: Event) => {
         min="10"
         max="1000"
         step="10"
-        :value="tickRate"
+        :value="1010 - tickRate"
         @input="handleSpeedChange"
         :disabled="isRunning"
       />

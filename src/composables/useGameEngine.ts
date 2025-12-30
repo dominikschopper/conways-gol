@@ -4,7 +4,7 @@ import { Engine, type EngineState, Board, type RuleSet } from '@/core'
 export function useGameEngine(
   board: Ref<Board>,
   onTick: () => void,
-  initialTickRate: number = 100
+  initialTickRate: number = 200
 ) {
   const engine = ref<Engine>(new Engine(board.value, { tickRate: initialTickRate }))
   const state = ref<EngineState>('stopped')
