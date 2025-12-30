@@ -11,6 +11,12 @@
   --grid-color: rgba(255, 255, 255, 0.05);
   --cell-color: #00ff41;
 
+  /* Cell Size Constraints */
+  --cell-size-min: 3px;
+  --cell-size-max: 20px;
+  --board-max-width: 90vw;
+  --board-max-height: 80vh;
+
   /* UI Colors */
   --color-primary: #00ff41;
   --color-secondary: #6c757d;

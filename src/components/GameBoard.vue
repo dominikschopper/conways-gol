@@ -14,29 +14,50 @@ const emit = defineEmits<{
   toggleCell: [coordinate: Coordinate]
 }>()
 
-const boardRef = ref<HTMLDivElement | null>(null)
-const { cellSize, renderCell, removeCell, clearAllCells } = useCellRenderer()
+const boardRef = ref<HTMLDivElement | null>(null);
+const { cellSize, renderCell, removeCell, clearAllCells, updateCellSize } = useCellRenderer();
+
+// Calculate optimal cell size based on board dimensions and constraints
+const calculateCellSize = () => {
+  const minSize = 3; // --cell-size-min
+  const maxSize = 20; // --cell-size-max
+  const maxWidth = window.innerWidth * 0.9; // 90vw
+  const maxHeight = window.innerHeight * 0.8; // 80vh
+
+  // Calculate size that fits within viewport
+  const widthBasedSize = Math.floor(maxWidth / props.cols);
+  const heightBasedSize = Math.floor(maxHeight / props.rows);
+
+  // Take the smaller of the two to ensure it fits
+  const calculatedSize = Math.min(widthBasedSize, heightBasedSize);
+
+  // Clamp between min and max
+  return Math.max(minSize, Math.min(maxSize, calculatedSize));
+};
 
 // Calculate board dimensions
-const boardWidth = computed(() => props.cols * cellSize.value)
-const boardHeight = computed(() => props.rows * cellSize.value)
+const boardWidth = computed(() => props.cols * cellSize.value);
+const boardHeight = computed(() => props.rows * cellSize.value);
 
 // Track rendered cells
-const renderedCells = new Set<string>()
+const renderedCells = new Set<string>();
 
 // Watch for board size changes and clear all cells
 watch(() => [props.rows, props.cols] as const, () => {
-  clearAllCells()
-  renderedCells.clear()
+  const newSize = calculateCellSize();
+  updateCellSize(newSize);
+
+  clearAllCells();
+  renderedCells.clear();
   // Re-render current living cells
   if (boardRef.value) {
     for (const cell of props.livingCells) {
-      const key = `${cell.row},${cell.col}`
-      renderCell(boardRef.value, cell)
-      renderedCells.add(key)
+      const key = `${cell.row},${cell.col}`;
+      renderCell(boardRef.value, cell);
+      renderedCells.add(key);
     }
   }
-})
+}, { immediate: true })
 
 // Render cells when they change
 watch(() => props.livingCells, (newCells, oldCells) => {
