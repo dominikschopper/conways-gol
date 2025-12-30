@@ -1,0 +1,23 @@
+:root {
+  /* Colors */
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2d2d2d;
+  --text-primary: #e0e0e0;
+  --text-secondary: #a0a0a0;
+  --border-color: #404040;
+
+  /* Board */
+  --board-bg: #0a0a0a;
+  --grid-color: rgba(255, 255, 255, 0.05);
+  --cell-color: #00ff41;
+
+  /* UI Colors */
+  --color-primary: #00ff41;
+  --color-secondary: #6c757d;
+  --color-warning: #ffc107;
+  --color-danger: #dc3545;
+
+  /* Interactive */
+  --input-bg: #1a1a1a;
+  --hover-bg: #404040;
+}
