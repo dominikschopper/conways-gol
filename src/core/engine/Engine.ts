@@ -15,45 +15,61 @@ export type EngineConfig = {
  * Handles start/stop/step and applies rules
  */
 export class Engine {
-  private board: Board
-  private ruleSet: RuleSet
-  private state: EngineState = 'stopped'
-  private tickRate: number
-  private intervalId: number | null = null
-  private onTickCallback?: () => void
+  private board: Board;
+  private ruleSet: RuleSet;
+  private state: EngineState = 'stopped';
+  private tickRate: number;
+  private animationFrameId: number | null = null;
+  private lastTickTime: number = 0;
+  private onTickCallback?: () => void;
 
   constructor(
     board: Board,
     config: EngineConfig = { tickRate: 100 }
   ) {
-    this.board = board
-    this.ruleSet = config.ruleSet ?? new ConwayRuleSet()
-    this.tickRate = config.tickRate
+    this.board = board;
+    this.ruleSet = config.ruleSet ?? new ConwayRuleSet();
+    this.tickRate = config.tickRate;
   }
 
   start(): void {
-    if (this.state === 'running') return
+    if (this.state === 'running') return;
 
-    this.state = 'running'
-    this.intervalId = window.setInterval(() => {
-      this.step()
-    }, this.tickRate)
+    this.state = 'running';
+    this.lastTickTime = performance.now();
+    this.gameLoop();
   }
 
   stop(): void {
-    if (this.intervalId !== null) {
-      clearInterval(this.intervalId)
-      this.intervalId = null
+    if (this.animationFrameId !== null) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
     }
-    this.state = 'stopped'
+    this.state = 'stopped';
   }
 
   pause(): void {
-    if (this.intervalId !== null) {
-      clearInterval(this.intervalId)
-      this.intervalId = null
+    if (this.animationFrameId !== null) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
     }
-    this.state = 'paused'
+    this.state = 'paused';
+  }
+
+  private gameLoop(): void {
+    if (this.state !== 'running') return;
+
+    const currentTime = performance.now();
+    const elapsed = currentTime - this.lastTickTime;
+
+    // Only step if enough time has passed
+    if (elapsed >= this.tickRate) {
+      this.step();
+      this.lastTickTime = currentTime;
+    }
+
+    // Schedule next frame
+    this.animationFrameId = requestAnimationFrame(() => this.gameLoop());
   }
 
   step(): void {
@@ -68,12 +84,8 @@ export class Engine {
   }
 
   setTickRate(tickRate: number): void {
-    this.tickRate = tickRate
-    // Restart interval if running
-    if (this.state === 'running') {
-      this.stop()
-      this.start()
-    }
+    this.tickRate = tickRate;
+    // No need to restart - gameLoop will use the new tickRate automatically
   }
 
   getTickRate(): number {

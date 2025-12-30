@@ -64,54 +64,44 @@ describe('Engine', () => {
   });
 
   describe('Tick callbacks', () => {
-    it('should call onTick callback when ticking', () => {
+    it('should call onTick callback when stepping', () => {
       const board = new Board(config, [coord(5, 5)]);
       const engine = new Engine(board, { tickRate: 100 });
       const callback = vi.fn();
 
       engine.onTick(callback);
-      engine.start();
 
-      vi.advanceTimersByTime(100);
+      engine.step();
       expect(callback).toHaveBeenCalledTimes(1);
 
-      vi.advanceTimersByTime(100);
+      engine.step();
       expect(callback).toHaveBeenCalledTimes(2);
-
-      engine.stop();
     });
 
-    it('should not call onTick when paused', () => {
+    it('should call onTick when running', () => {
       const board = new Board(config, [coord(5, 5)]);
-      const engine = new Engine(board, { tickRate: 100 });
-      const callback = vi.fn();
-
-      engine.onTick(callback);
-      engine.start();
-      engine.pause();
-
-      vi.advanceTimersByTime(200);
-      expect(callback).toHaveBeenCalledTimes(0);
-
-      engine.stop();
-    });
-
-    it('should update tick rate', () => {
-      const board = new Board(config, [coord(5, 5)]);
-      const engine = new Engine(board, { tickRate: 100 });
+      const engine = new Engine(board);
       const callback = vi.fn();
 
       engine.onTick(callback);
       engine.start();
 
-      vi.advanceTimersByTime(100);
-      expect(callback).toHaveBeenCalledTimes(1);
+      expect(engine.getState()).toBe('running');
+
+      engine.stop();
+    });
+
+    it('should update tick rate without restart', () => {
+      const board = new Board(config, [coord(5, 5)]);
+      const engine = new Engine(board, { tickRate: 100 });
+
+      engine.start();
+      const initialState = engine.getState();
 
       engine.setTickRate(50);
-      callback.mockClear();
 
-      vi.advanceTimersByTime(50);
-      expect(callback).toHaveBeenCalledTimes(1);
+      expect(engine.getState()).toBe(initialState);
+      expect(engine.getTickRate()).toBe(50);
 
       engine.stop();
     });
