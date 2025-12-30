@@ -68,12 +68,14 @@ export class Board {
     }
   }
 
-  setState(cells: Coordinate[], generation: number = 0): void {
-    this.grid.clear()
+  setState(cells: Coordinate[], generation?: number): void {
+    this.grid.clear();
     for (const cell of cells) {
-      this.grid.setAlive(cell)
+      this.grid.setAlive(cell);
     }
-    this.generation = generation
+    if (generation !== undefined) {
+      this.generation = generation;
+    }
   }
 
   incrementGeneration(): void {
