@@ -1,6 +1,6 @@
-import type { PatternDefinition } from '../types/Pattern'
-import { Pattern } from './Pattern'
-import { coord } from '../types/Cell'
+import type { PatternDefinition } from '../types/Pattern';
+import { Pattern } from './Pattern';
+import { coord } from '../types/Cell';
 
 // Glider pattern (moves diagonally)
 const GLIDER: PatternDefinition = {
@@ -15,7 +15,7 @@ const GLIDER: PatternDefinition = {
     coord(2, 1),
     coord(2, 2)
   ]
-}
+};
 
 // Blinker pattern (period-2 oscillator)
 const BLINKER: PatternDefinition = {
@@ -28,7 +28,7 @@ const BLINKER: PatternDefinition = {
     coord(0, 1),
     coord(0, 2)
   ]
-}
+};
 
 // Toad pattern (period-2 oscillator)
 const TOAD: PatternDefinition = {
@@ -44,13 +44,13 @@ const TOAD: PatternDefinition = {
     coord(1, 1),
     coord(1, 2)
   ]
-}
+};
 
 // Export pattern library
 export const PATTERN_LIBRARY = {
   GLIDER: new Pattern(GLIDER),
   BLINKER: new Pattern(BLINKER),
   TOAD: new Pattern(TOAD)
-}
+};
 
-export const getAllPatterns = (): Pattern[] => Object.values(PATTERN_LIBRARY)
+export const getAllPatterns = (): Pattern[] => Object.values(PATTERN_LIBRARY);

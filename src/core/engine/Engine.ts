@@ -1,7 +1,7 @@
-import type { Coordinate } from '../types/Cell'
-import { Board } from './Board'
-import type { RuleSet } from './RuleSet'
-import { ConwayRuleSet } from './RuleSet'
+import type { Coordinate } from '../types/Cell';
+import { Board } from './Board';
+import type { RuleSet } from './RuleSet';
+import { ConwayRuleSet } from './RuleSet';
 
 export type EngineState = 'stopped' | 'running' | 'paused'
 
@@ -69,18 +69,18 @@ export class Engine {
     }
 
     // Schedule next frame
-    this.animationFrameId = requestAnimationFrame(() => this.gameLoop());
+    this.animationFrameId = requestAnimationFrame(() => { this.gameLoop(); });
   }
 
   step(): void {
-    const nextGeneration = this.calculateNextGeneration()
-    this.board.setState(nextGeneration)
-    this.board.incrementGeneration()
-    this.onTickCallback?.()
+    const nextGeneration = this.calculateNextGeneration();
+    this.board.setState(nextGeneration);
+    this.board.incrementGeneration();
+    this.onTickCallback?.();
   }
 
   getState(): EngineState {
-    return this.state
+    return this.state;
   }
 
   setTickRate(tickRate: number): void {
@@ -89,38 +89,38 @@ export class Engine {
   }
 
   getTickRate(): number {
-    return this.tickRate
+    return this.tickRate;
   }
 
   setRuleSet(ruleSet: RuleSet): void {
-    this.ruleSet = ruleSet
+    this.ruleSet = ruleSet;
   }
 
   getRuleSet(): RuleSet {
-    return this.ruleSet
+    return this.ruleSet;
   }
 
   onTick(callback: () => void): void {
-    this.onTickCallback = callback
+    this.onTickCallback = callback;
   }
 
   private calculateNextGeneration(): Coordinate[] {
-    const nextGen: Coordinate[] = []
+    const nextGen: Coordinate[] = [];
 
     // Evaluate all cells that could change
     for (const cell of this.board.getCellsToEvaluate()) {
-      const isAlive = this.board.isAlive(cell)
-      const neighborCount = this.board.getNeighborCount(cell)
+      const isAlive = this.board.isAlive(cell);
+      const neighborCount = this.board.getNeighborCount(cell);
 
       const shouldLive = isAlive
         ? this.ruleSet.shouldSurvive(neighborCount)
-        : this.ruleSet.shouldBeBorn(neighborCount)
+        : this.ruleSet.shouldBeBorn(neighborCount);
 
       if (shouldLive) {
-        nextGen.push(cell)
+        nextGen.push(cell);
       }
     }
 
-    return nextGen
+    return nextGen;
   }
 }

@@ -1,5 +1,3 @@
-import type { Coordinate } from './Cell'
-
 export type BoardConfig = {
   readonly rows: number
   readonly cols: number

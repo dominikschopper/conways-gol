@@ -1,4 +1,4 @@
-import type { Coordinate } from './Cell'
+import type { Coordinate } from './Cell';
 
 export type PatternDefinition = {
   readonly name: string

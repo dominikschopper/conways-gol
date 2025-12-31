@@ -16,15 +16,15 @@ export interface RuleSet {
  */
 export class ConwayRuleSet implements RuleSet {
   shouldSurvive(neighborCount: number): boolean {
-    return neighborCount === 2 || neighborCount === 3
+    return neighborCount === 2 || neighborCount === 3;
   }
 
   shouldBeBorn(neighborCount: number): boolean {
-    return neighborCount === 3
+    return neighborCount === 3;
   }
 
   getName(): string {
-    return "Conway's Game of Life (B3/S23)"
+    return "Conway's Game of Life (B3/S23)";
   }
 }
 
@@ -36,14 +36,14 @@ export class ConwayRuleSet implements RuleSet {
  */
 export class HighLifeRuleSet implements RuleSet {
   shouldSurvive(neighborCount: number): boolean {
-    return neighborCount === 2 || neighborCount === 3
+    return neighborCount === 2 || neighborCount === 3;
   }
 
   shouldBeBorn(neighborCount: number): boolean {
-    return neighborCount === 3 || neighborCount === 6
+    return neighborCount === 3 || neighborCount === 6;
   }
 
   getName(): string {
-    return 'HighLife (B36/S23)'
+    return 'HighLife (B36/S23)';
   }
 }

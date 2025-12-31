@@ -22,7 +22,7 @@ export default tseslint.config(
         varsIgnorePattern: '^_'
       }],
       'semi': ['error', 'always'],
-      '@typescript-eslint/semi': ['error', 'always']
+      '@/semi': ['error', 'always']
     }
   }
 )
