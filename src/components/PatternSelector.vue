@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { getAllPatterns, type Pattern, type Coordinate } from '@/core'
+import { getAllPatterns, type Pattern, type Coordinate } from '@/core';
 
 const props = defineProps<{
   rows: number
   cols: number
   livingCells: Coordinate[]
-}>()
+}>();
 
 const emit = defineEmits<{
   selectPattern: [pattern: Pattern, position: Coordinate]
-}>()
+}>();
 
 const patterns = getAllPatterns()
 

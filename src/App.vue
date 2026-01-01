@@ -31,7 +31,6 @@ const {
 // Engine
 const {
   isRunning,
-  isStopped,
   isPaused,
   tickRate,
   start,

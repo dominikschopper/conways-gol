@@ -1,10 +1,12 @@
-import eslint from '@eslint/js'
-import tseslint from 'typescript-eslint'
-import globals from 'globals'
+import eslint from '@eslint/js';
+import tseslint from 'typescript-eslint';
+import globals from 'globals';
+import pluginVue from 'eslint-plugin-vue';
 
 export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.strictTypeChecked,
+  ...pluginVue.configs["flat/essential"],
   {
     languageOptions: {
       globals: {
@@ -22,7 +24,7 @@ export default tseslint.config(
         varsIgnorePattern: '^_'
       }],
       'semi': ['error', 'always'],
-      '@/semi': ['error', 'always']
+      '@/semi': ['error', 'always'],
     }
   }
-)
+);

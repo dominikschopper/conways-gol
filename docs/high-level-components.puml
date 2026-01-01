@@ -1,0 +1,110 @@
+@startuml high-level-components
+!theme plain
+skinparam componentStyle rectangle
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+
+left to right direction
+
+title Conway's Game of Life - High-Level Component Architecture
+
+package "Vue Application" {
+  component "App.vue" as App #LightBlue {
+    [Root Component]
+    [Orchestrates all composables]
+    [Handles component communication]
+  }
+}
+
+package "State Management (Composables)" #LightYellow {
+  component "useGameSettings" as Settings #LightYellow
+  note right of Settings
+    Manages grid configuration
+    rows, cols, wraparound
+  end note
+
+  component "useGameBoard" as Board #LightYellow
+  note bottom of Board
+    Manages board state
+    livingCells, generation
+    toggleCell(), placePattern()
+  end note
+
+  component "useGameEngine" as Engine #LightYellow
+  note right of Engine
+    Manages game loop
+    isRunning, isPaused, tickRate
+    start(), stop(), pause()
+  end note
+}
+
+package "UI Components" #LightGreen {
+  component "GameBoard" as GameBoardComp #LightGreen
+  note right of GameBoardComp
+    Renders grid and cells
+  end note
+
+  component "GameControls" as Controls #LightGreen
+  note right of Controls
+    Playback controls
+  end note
+
+  component "GameSettings" as SettingsComp #LightGreen
+  note right of SettingsComp
+    Configuration inputs
+  end note
+
+  component "GenerationCounter" as Counter #LightGreen
+  note right of Counter
+    Stats display
+  end note
+
+  component "PatternSelector" as Patterns #LightGreen
+  note right of Patterns
+    Pattern library UI
+  end note
+}
+
+package "Core Game Logic" #LightCoral {
+  component "Engine" as CoreEngine #white
+  component "Board" as CoreBoard #white
+  component "SparseGrid" as Grid #white
+  component "RuleSet" as Rules #white
+}
+
+' App orchestrates composables
+App -up-> Settings : uses
+App --> Board : uses
+App --> Engine : uses
+
+' App passes data to components
+App -down-> GameBoardComp : props
+App -down-> Controls : props
+App -down-> SettingsComp : props
+App -down-> Counter : props
+App -down-> Patterns : props
+
+' Composable dependencies
+Settings ..> Board : config
+Board ..> Engine : board instance
+
+' Core logic usage
+Board --> CoreBoard : uses
+Engine --> CoreEngine : uses
+CoreBoard --> Grid : uses
+CoreEngine --> Rules : uses
+
+note bottom of App
+  Central orchestrator that:
+  - Composes state management
+  - Passes props to components
+  - Handles component events
+end note
+
+note left of "State Management (Composables)"
+  Vue 3 Composition API pattern
+  Reactive refs + computed + watchers
+  No external state management library
+end note
+
+@enduml

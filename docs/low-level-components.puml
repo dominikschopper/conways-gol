@@ -1,0 +1,228 @@
+@startuml low-level-components
+!theme plain
+skinparam classStyle rectangle
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+
+title Conway's Game of Life - Low-Level Core Architecture
+
+package "Game Engine" #LightCoral {
+  class Engine {
+    - board: Board
+    - ruleSet: RuleSet
+    - config: EngineConfig
+    - state: EngineState
+    - lastTickTime: number
+    - rafId: number | null
+    - onStateChange?: () => void
+    ---
+    + start(): void
+    + stop(): void
+    + pause(): void
+    + resume(): void
+    + step(): void
+    + getState(): EngineState
+    + setTickRate(rate: number): void
+    - gameLoop(): void
+    - calculateNextGeneration(): Set<string>
+  }
+
+  class Board {
+    - grid: SparseGrid
+    - neighborCounter: NeighborCounter
+    - config: BoardConfig
+    - generation: number
+    ---
+    + toggle(coord: Coordinate): boolean
+    + isAlive(coord: Coordinate): boolean
+    + clear(): void
+    + getLivingCells(): Coordinate[]
+    + getNeighborCount(coord: Coordinate): number
+    + getCellsToEvaluate(): Set<string>
+    + getGeneration(): number
+    + incrementGeneration(): void
+    + setState(cells: Set<string>): void
+    + getState(): BoardState
+    - validateCoordinate(coord: Coordinate): boolean
+  }
+
+  class SparseGrid {
+    - livingCells: Set<string>
+    - neighborCounts: Map<string, number>
+    - config: BoardConfig
+    ---
+    + add(coord: Coordinate): boolean
+    + remove(coord: Coordinate): boolean
+    + has(coord: Coordinate): boolean
+    + clear(): void
+    + getLivingCells(): Coordinate[]
+    + getNeighborCount(coord: Coordinate): number
+    + getCellsToEvaluate(): Set<string>
+    + getState(): BoardState
+    - incrementNeighborCounts(coord: Coordinate): void
+    - decrementNeighborCounts(coord: Coordinate): void
+  }
+
+  class NeighborCounter {
+    - config: BoardConfig
+    ---
+    + getNeighborCoordinates(coord: Coordinate): Coordinate[]
+    + countLivingNeighbors(coord: Coordinate, isAlive: (c: Coordinate) => boolean): number
+    - wrapCoordinate(row: number, col: number): Coordinate
+  }
+
+  interface RuleSet {
+    + shouldSurvive(neighborCount: number): boolean
+    + shouldBeBorn(neighborCount: number): boolean
+    + getName(): string
+  }
+
+  class ConwayRuleSet {
+    + shouldSurvive(neighborCount: number): boolean
+    + shouldBeBorn(neighborCount: number): boolean
+    + getName(): string
+  }
+
+  class HighLifeRuleSet {
+    + shouldSurvive(neighborCount: number): boolean
+    + shouldBeBorn(neighborCount: number): boolean
+    + getName(): string
+  }
+}
+
+package "Data Structures" #LightYellow {
+  class "Set<string>" as CellSet {
+    Living cells storage
+    Key: "row,col"
+  }
+
+  class "Map<string, number>" as NeighborMap {
+    Neighbor counts cache
+    Key: "row,col"
+    Value: neighbor count
+  }
+}
+
+package "Patterns" #LightGreen {
+  class Pattern {
+    - definition: PatternDefinition
+    ---
+    + getName(): string
+    + getDescription(): string
+    + getCells(): Coordinate[]
+    + getWidth(): number
+    + getHeight(): number
+    + placeOnBoard(board: Board, position: Coordinate): void
+  }
+
+  class PatternLibrary {
+    {static} + GLIDER: PatternDefinition
+    {static} + BLINKER: PatternDefinition
+    {static} + TOAD: PatternDefinition
+    {static} + getAll(): PatternDefinition[]
+  }
+}
+
+package "DOM Rendering (Composable)" #LightBlue {
+  class useCellRenderer {
+    - cellPool: Map<string, HTMLElement>
+    - cellSize: Ref<number>
+    ---
+    + renderCell(coord: Coordinate, container: HTMLElement): void
+    + removeCell(coord: Coordinate): void
+    + clearAllCells(): void
+    + updateCellSize(size: number): void
+    - getOrCreateCell(key: string): HTMLElement
+    - returnCellToPool(key: string, element: HTMLElement): void
+  }
+
+  class "Map<string, HTMLElement>" as CellPool {
+    Flyweight pattern
+    Reusable DOM elements
+  }
+}
+
+' Relationships
+Engine *-- Board : manages
+Engine o-- RuleSet : uses
+Board *-- SparseGrid : contains
+Board *-- NeighborCounter : uses
+SparseGrid *-- CellSet : stores cells
+SparseGrid *-- NeighborMap : caches neighbors
+RuleSet <|.. ConwayRuleSet : implements
+RuleSet <|.. HighLifeRuleSet : implements
+Pattern o-- PatternLibrary : uses
+useCellRenderer *-- CellPool : manages pool
+
+note right of Engine
+  **Game Loop:**
+  1. Uses requestAnimationFrame
+  2. Checks elapsed time vs tickRate
+  3. Calls calculateNextGeneration()
+  4. Updates board state
+  5. Calls onStateChange callback
+
+  **Optimization:**
+  Only evaluates cells in getCellsToEvaluate()
+  (living cells + cells with neighbors)
+end note
+
+note right of SparseGrid
+  **Performance Optimizations:**
+
+  1. **Sparse Storage**: Only stores
+     living cells, not entire grid
+
+  2. **Neighbor Cache**: Pre-computed
+     neighbor counts for cells adjacent
+     to living cells
+
+  3. **Efficient Evaluation**: Returns
+     living cells + cells with neighbors
+     (not entire grid)
+
+  Time Complexity:
+  - Add/Remove: O(1)
+  - getCellsToEvaluate: O(n) where
+    n = living cells + neighbors
+end note
+
+note bottom of NeighborCounter
+  **Wraparound Logic:**
+
+  If wraparound=true:
+    Torus topology (edges wrap)
+    row = (row + rows) % rows
+    col = (col + cols) % cols
+
+  If wraparound=false:
+    Bounded grid
+    Neighbors outside grid ignored
+end note
+
+note bottom of ConwayRuleSet
+  **Conway's Game of Life (B3/S23):**
+
+  Birth: exactly 3 neighbors
+  Survival: 2-3 neighbors
+
+  **HighLife (B36/S23):**
+
+  Birth: 3 or 6 neighbors
+  Survival: 2-3 neighbors
+end note
+
+note right of useCellRenderer
+  **Flyweight Pattern:**
+
+  Reuses DOM elements from pool
+  instead of creating/destroying
+  on every render cycle
+
+  Benefits:
+  - Reduces GC pressure
+  - Faster rendering
+  - Smoother animations
+end note
+
+@enduml

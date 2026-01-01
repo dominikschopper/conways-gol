@@ -1,0 +1,193 @@
+@startuml mid-level-components
+!theme plain
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+
+title Conway's Game of Life - Mid-Level Component Architecture
+
+' App.vue orchestrator
+component "App.vue" as App #LightBlue
+note right of App
+  Orchestrates state & components
+  ---
+  handleSettingsChange()
+  handleSelectPattern()
+end note
+
+' Composables package
+package "Composables" #LightYellow {
+  component "useGameSettings()" as Settings #LightYellow
+  component "useGameBoard(config)" as Board #LightYellow
+  component "useGameEngine(board, updateState)" as Engine #LightYellow
+  component "useCellRenderer()" as Renderer #LightYellow
+}
+
+note right of Settings
+  **Exports:**
+  rows: Ref<number>
+  cols: Ref<number>
+  wraparound: Ref<boolean>
+  config: ComputedRef<BoardConfig>
+  updateSettings(config)
+end note
+
+note right of Board
+  **Exports:**
+  board: Board
+  livingCells: ComputedRef<Coordinate[]>
+  generation: Ref<number>
+  livingCellCount: ComputedRef<number>
+  ---
+  toggleCell(coord)
+  placePattern(pattern, position)
+  clear()
+  updateState()
+
+  **Watchers:**
+  - Watches config changes
+  - Recreates board on change
+  - Clears living cells
+end note
+
+note right of Engine
+  **Exports:**
+  engine: Engine
+  state: Ref<EngineState>
+  tickRate: Ref<number>
+  isRunning: ComputedRef<boolean>
+  isPaused: ComputedRef<boolean>
+  ---
+  start(), stop(), pause(), step()
+  setTickRate(rate)
+  recreateEngine()
+
+  **Watchers:**
+  - Watches board changes
+  - Recreates engine on change
+  - Preserves tickRate
+end note
+
+note right of Renderer
+  **Exports:**
+  cellSize: Ref<number>
+  ---
+  renderCell(coord, container)
+  removeCell(coord)
+  clearAllCells()
+  updateCellSize(size)
+end note
+
+' UI Components package
+package "UI Components" #LightGreen {
+  component "GameBoard.vue" as GameBoard #LightGreen
+  component "GameControls.vue" as Controls #LightGreen
+  component "GameSettings.vue" as SettingsComp #LightGreen
+  component "GenerationCounter.vue" as Counter #LightGreen
+  component "PatternSelector.vue" as Patterns #LightGreen
+}
+
+note left of GameBoard
+  **Props:**
+  rows, cols, livingCells
+
+  **Events:**
+  toggleCell(coord)
+
+  **Features:**
+  Renders grid and cells
+  Uses event delegation
+end note
+
+note left of Controls
+  **Props:**
+  isRunning, isPaused, tickRate
+
+  **Events:**
+  start(), stop(), pause()
+  step(), clear()
+  update:tickRate(rate)
+
+  **Features:**
+  Playback control buttons
+  Speed slider
+end note
+
+note left of SettingsComp
+  **Props:**
+  rows, cols, wraparound, disabled
+
+  **Events:**
+  update:settings(config)
+
+  **Features:**
+  Input fields with buffering
+  Disabled when running
+end note
+
+note left of Counter
+  **Props:**
+  generation, livingCells
+
+  **Features:**
+  Read-only display
+end note
+
+note left of Patterns
+  **Props:**
+  rows, cols, livingCells
+
+  **Events:**
+  selectPattern(pattern, position)
+
+  **Features:**
+  Pattern library dropdown
+  Placement on click
+end note
+
+' Core modules package
+package "Core Logic" #LightCoral {
+  component "Board" as CoreBoard #white
+  component "Engine" as CoreEngine #white
+  component "Pattern Library" as PatternLib #white
+}
+
+' App uses composables
+App ..> Settings : composes
+App ..> Board : composes
+App ..> Engine : composes
+
+' Composable dependencies
+Settings --> Board : provides config
+Board --> Engine : provides board
+Engine ..> Board : calls updateState()
+
+' App to component connections - Props flow down
+App --> GameBoard : props
+App --> Controls : props
+App --> SettingsComp : props
+App --> Counter : props
+App --> Patterns : props
+
+' Component to App - Events flow up
+GameBoard ..> App : events
+Controls ..> App : events
+SettingsComp ..> App : events
+Patterns ..> App : events
+
+' GameBoard uses renderer
+GameBoard ..> Renderer : uses
+
+' Composables use core modules
+Board ..> CoreBoard : manages
+Engine ..> CoreEngine : manages
+Patterns ..> PatternLib : reads
+
+note bottom of App
+  **Unidirectional data flow:**
+  1. Props flow down to components
+  2. Events flow up from components
+  3. App updates composables
+  4. Composables trigger reactivity
+end note
+
+@enduml

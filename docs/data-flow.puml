@@ -1,0 +1,173 @@
+@startuml data-flow
+!theme plain
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+skinparam sequenceMessageAlign center
+
+title Conway's Game of Life - Data Flow Diagram
+
+actor User
+participant "GameBoard\nComponent" as GameBoard #LightGreen
+participant "GameControls\nComponent" as GameControls #LightGreen
+participant "GameSettings\nComponent" as GameSettings #LightGreen
+participant "PatternSelector\nComponent" as PatternSelector #LightGreen
+participant "App.vue\nOrchestrator" as App #LightBlue
+participant "useGameSettings\nComposable" as SettingsComp #LightYellow
+participant "useGameBoard\nComposable" as BoardComp #LightYellow
+participant "useGameEngine\nComposable" as EngineComp #LightYellow
+participant "Core Engine\n(Board + Engine)" as Core #LightCoral
+
+== Initial Setup ==
+
+App -> SettingsComp : create composable
+activate SettingsComp
+SettingsComp --> App : returns {rows, cols, wraparound, config, updateSettings}
+deactivate SettingsComp
+
+App -> BoardComp : create composable(config)
+activate BoardComp
+BoardComp -> Core : new Board(config)
+BoardComp --> App : returns {board, livingCells, toggleCell, placePattern, ...}
+deactivate BoardComp
+
+App -> EngineComp : create composable(board, updateState)
+activate EngineComp
+EngineComp -> Core : new Engine(board, ruleSet)
+EngineComp --> App : returns {isRunning, isPaused, start, stop, ...}
+deactivate EngineComp
+
+note over App
+  App now has all state and methods
+  Ready to pass props to components
+end note
+
+== User Interaction: Toggle Cell ==
+
+User -> GameBoard : click on cell
+GameBoard -> App : emit toggleCell(coord)
+App -> BoardComp : call toggleCell(coord)
+activate BoardComp
+BoardComp -> Core : board.toggle(coord)
+Core --> BoardComp : cell toggled
+BoardComp -> BoardComp : livingCells computed updates
+BoardComp --> App : reactivity triggers
+deactivate BoardComp
+App -> GameBoard : re-render with new livingCells prop
+GameBoard -> User : updated grid displayed
+
+note right
+  Unidirectional data flow:
+  Event up → State change → Props down
+end note
+
+== User Interaction: Start Game ==
+
+User -> GameControls : click start button
+GameControls -> App : emit start()
+App -> EngineComp : call start()
+activate EngineComp
+EngineComp -> Core : engine.start()
+EngineComp -> EngineComp : state becomes 'running'
+EngineComp --> App : isRunning computed updates
+deactivate EngineComp
+App -> GameControls : re-render with isRunning=true prop
+
+== Game Loop: Automatic Updates ==
+
+Core -> Core : requestAnimationFrame loop
+activate Core
+Core -> Core : calculateNextGeneration()
+Core -> Core : board.setState(nextCells)
+Core -> BoardComp : call updateState() callback
+deactivate Core
+activate BoardComp
+BoardComp -> BoardComp : livingCells computed updates
+BoardComp -> BoardComp : generation ref increments
+BoardComp --> App : reactivity triggers
+deactivate BoardComp
+App -> GameBoard : re-render with new livingCells
+App -> "GenerationCounter" : re-render with new generation
+
+note over Core, BoardComp
+  Engine calls updateState callback
+  on every tick to trigger Vue reactivity
+end note
+
+== User Interaction: Change Settings ==
+
+User -> GameSettings : change rows/cols/wraparound
+GameSettings -> App : emit update:settings(newConfig)
+App -> SettingsComp : call updateSettings(newConfig)
+activate SettingsComp
+SettingsComp -> SettingsComp : update rows, cols, wraparound refs
+SettingsComp -> SettingsComp : config computed updates
+SettingsComp --> App : reactivity triggers
+deactivate SettingsComp
+
+note over BoardComp
+  BoardComp watches config
+  via watch(config, ...)
+end note
+
+BoardComp -> BoardComp : watcher detects config change
+activate BoardComp
+BoardComp -> Core : create new Board(newConfig)
+BoardComp -> BoardComp : clear livingCells
+BoardComp -> BoardComp : reset generation
+BoardComp --> App : reactivity triggers
+deactivate BoardComp
+
+note over EngineComp
+  EngineComp watches board
+  via watch(board, ...)
+end note
+
+EngineComp -> EngineComp : watcher detects board change
+activate EngineComp
+EngineComp -> Core : create new Engine(newBoard)
+EngineComp --> App : reactivity triggers
+deactivate EngineComp
+
+App -> GameBoard : re-render with new dimensions
+App -> "GenerationCounter" : re-render with generation=0
+
+== User Interaction: Place Pattern ==
+
+User -> PatternSelector : select pattern and click grid
+PatternSelector -> App : emit selectPattern(pattern, position)
+App -> BoardComp : call placePattern(pattern, position)
+activate BoardComp
+BoardComp -> Core : pattern.placeOnBoard(board, position)
+Core -> Core : toggle multiple cells
+Core --> BoardComp : cells placed
+BoardComp -> BoardComp : livingCells computed updates
+BoardComp --> App : reactivity triggers
+deactivate BoardComp
+App -> GameBoard : re-render with new livingCells
+GameBoard -> User : pattern displayed on grid
+
+== Reactivity Summary ==
+
+note over App
+  **Vue 3 Reactivity Flow:**
+
+  1. **Refs** (rows, cols, generation):
+     Direct reactive values
+
+  2. **Computed** (config, livingCells, isRunning):
+     Auto-update when dependencies change
+
+  3. **Watchers** (config → board, board → engine):
+     Side effects on value changes
+
+  4. **Props** (reactive, read-only):
+     Flow down from App to components
+
+  5. **Events** (non-reactive):
+     Flow up from components to App
+
+  6. **Callbacks** (updateState):
+     Bridge core logic to Vue reactivity
+end note
+
+@enduml
