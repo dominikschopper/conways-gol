@@ -23,6 +23,12 @@ const applySettings = () => {
     wraparound: localWraparound.value
   })
 }
+
+const autoSelect = (event: Event) => {
+  if ('target' in event && event.target instanceof HTMLInputElement) {
+    event.target.select();
+  }
+}
 </script>
 
 <template>
@@ -38,6 +44,7 @@ const applySettings = () => {
         min="10"
         max="1000"
         :disabled="disabled"
+        @focus="($ev) => autoSelect($ev)"
       />
     </div>
 
@@ -50,6 +57,7 @@ const applySettings = () => {
         min="10"
         max="2000"
         :disabled="disabled"
+        @focus="($ev) => autoSelect($ev)"
       />
     </div>
 

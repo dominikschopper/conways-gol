@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, Ref, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import GameBoard from '../components/GameBoard.vue';
 import GameSettings from '../components/GameSettings.vue';
@@ -8,7 +8,7 @@ import PatternSelector from '../components/PatternSelector.vue';
 import { useGameSettings } from '../composables/useGameSettings';
 import { useGameBoard } from '../composables/useGameBoard';
 import { useGameEngine } from '../composables/useGameEngine';
-import { ConwayRuleSet, HighLifeRuleSet, SeedsRuleSet, type Pattern, type Coordinate } from '../core';
+import { ConwayRuleSet, HighLifeRuleSet, SeedsRuleSet, type Pattern, type Coordinate, Board } from '../core';
 
 const route = useRoute();
 const router = useRouter();
@@ -78,7 +78,6 @@ const {
 // Engine
 const {
   isRunning,
-  isPaused,
   tickRate,
   start,
   stop,
@@ -87,7 +86,7 @@ const {
   setTickRate,
   setRuleSet,
   recreateEngine
-} = useGameEngine(board, updateState, 100);
+} = useGameEngine(board as Ref<Board>, updateState, 100);
 
 // Set initial ruleset
 onMounted(() => {
@@ -146,7 +145,10 @@ const handleSpeedChange = (event: Event) => {
   <div v-if="rulesetConfig" class="game-page">
     <!-- Header -->
     <header class="game-header">
-      <button @click="goBack" class="back-button">← Back</button>
+      <button @click="goBack" class="btn back-button">
+        <i aria-hidden="true" class="symb">reply</i>
+        Back
+      </button>
       <div class="header-title">
         <h1>{{ rulesetConfig.title }}</h1>
         <span class="notation">{{ rulesetConfig.notation }}</span>
@@ -216,14 +218,16 @@ const handleSpeedChange = (event: Event) => {
           @click="start"
           class="btn btn-primary"
         >
-          ▶ Play
+          <i class="symb" aria-hidden="true">play_arrow</i>
+          Play
         </button>
         <button
           v-else
           @click="pause"
           class="btn btn-warning"
         >
-          ⏸ Pause
+          <i class="symb" aria-hidden="true">pause</i>
+           Pause
         </button>
 
         <button
@@ -231,15 +235,8 @@ const handleSpeedChange = (event: Event) => {
           :disabled="isRunning"
           class="btn btn-secondary"
         >
-          ⏭ Step
-        </button>
-
-        <button
-          @click="stop"
-          :disabled="!isRunning && !isPaused"
-          class="btn btn-secondary"
-        >
-          ⏹ Stop
+          <i class="symb" aria-hidden="true">last_page</i>
+          Step
         </button>
 
         <button
@@ -247,7 +244,8 @@ const handleSpeedChange = (event: Event) => {
           :disabled="isRunning"
           class="btn btn-danger"
         >
-          🗑 Clear
+          <i class="symb" aria-hidden="true">playlist_remove</i>
+          Clear
         </button>
       </div>
 
@@ -386,6 +384,7 @@ const handleSpeedChange = (event: Event) => {
   align-items: center;
   justify-content: center;
   padding: 1rem;
+  margin-top: 1.5rem;
 }
 
 /* Playback controls */
@@ -404,6 +403,8 @@ const handleSpeedChange = (event: Event) => {
 }
 
 .btn {
+  display:flex;
+  align-items: center;
   padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 4px;

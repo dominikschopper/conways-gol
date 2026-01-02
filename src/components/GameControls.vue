@@ -51,14 +51,6 @@ const handleSpeedChange = (event: Event) => {
       </button>
 
       <button
-        @click="emit('stop')"
-        :disabled="!isRunning && !isPaused"
-        class="btn btn-secondary"
-      >
-        Stop
-      </button>
-
-      <button
         @click="emit('step')"
         :disabled="isRunning"
         class="btn btn-secondary"
