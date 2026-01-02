@@ -1,24 +1,26 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
+import { RULESET_ROUTES } from '../constants/rulesets';
+import { RULE_NAME } from '../core/types/Rules';
 
 const router = useRouter();
 
 const rulesets = [
   {
     name: "Classic",
-    route: '/game/conway',
+    route: `/game/${RULESET_ROUTES[RULE_NAME.CONWAY]}`,
     notation: 'B3/S23',
     color: '#00ff88'
   },
   {
     name: 'HighLife',
-    route: '/game/highlife',
+    route: `/game/${RULESET_ROUTES[RULE_NAME.HIGHLIFE]}`,
     notation: 'B36/S23',
     color: '#ff6b9d'
   },
   {
     name: 'Seeds',
-    route: '/game/seeds',
+    route: `/game/${RULESET_ROUTES[RULE_NAME.SEEDS]}`,
     notation: 'B2/S',
     color: '#ffa500'
   }

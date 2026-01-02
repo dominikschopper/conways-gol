@@ -17,6 +17,7 @@ const emit = defineEmits<{
 }>();
 
 const patterns = computed(() => {
+
   const result: Pattern[] = [];
 
   if (props.showConwayPatterns !== false) {

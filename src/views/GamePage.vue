@@ -9,6 +9,8 @@ import { useGameSettings } from '../composables/useGameSettings';
 import { useGameBoard } from '../composables/useGameBoard';
 import { useGameEngine } from '../composables/useGameEngine';
 import { ConwayRuleSet, HighLifeRuleSet, SeedsRuleSet, type Pattern, type Coordinate, Board } from '../core';
+import { RULESET_ROUTES } from '../constants/rulesets';
+import { RULE_NAME } from '../core/types/Rules';
 
 const route = useRoute();
 const router = useRouter();
@@ -17,32 +19,38 @@ const router = useRouter();
 const settingsOpen = ref(true);
 const patternsOpen = ref(true);
 
+// Create rulesets once (not in computed)
+const conwayRuleSet = new ConwayRuleSet();
+const highLifeRuleSet = new HighLifeRuleSet();
+const seedsRuleSet = new SeedsRuleSet();
+
 // Determine ruleset from route
 const rulesetName = computed(() => route.params.ruleset as string);
 
 const rulesetConfig = computed(() => {
+
   switch (rulesetName.value) {
-    case 'conway':
+    case RULESET_ROUTES[RULE_NAME.CONWAY]:
       return {
         title: "Conway's Game of Life",
         notation: 'B3/S23',
-        ruleSet: new ConwayRuleSet(),
+        ruleSet: conwayRuleSet,
         showConwayPatterns: true,
         showHighLifePatterns: false
       };
-    case 'highlife':
+    case RULESET_ROUTES[RULE_NAME.HIGHLIFE]:
       return {
         title: 'HighLife',
         notation: 'B36/S23',
-        ruleSet: new HighLifeRuleSet(),
+        ruleSet: highLifeRuleSet,
         showConwayPatterns: true,
         showHighLifePatterns: true
       };
-    case 'seeds':
+    case RULESET_ROUTES[RULE_NAME.SEEDS]:
       return {
         title: 'Seeds',
         notation: 'B2/S',
-        ruleSet: new SeedsRuleSet(),
+        ruleSet: seedsRuleSet,
         showConwayPatterns: true,
         showHighLifePatterns: false
       };
@@ -195,7 +203,7 @@ const handleSpeedChange = (event: Event) => {
               :cols="cols"
               :living-cells="livingCells"
               :show-conway-patterns="rulesetConfig.showConwayPatterns"
-              :show-highlife-patterns="rulesetConfig.showHighLifePatterns"
+              :show-high-life-patterns="rulesetConfig.showHighLifePatterns"
               @select-pattern="handleSelectPattern"
             />
           </div>
