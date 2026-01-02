@@ -48,7 +48,7 @@ const navigateTo = (route: string) => {
           creating surprisingly complex patterns and behaviors.
         </p>
         <p>
-          Each cell can be either <strong>alive</strong> or <strong>dead</strong>.
+          Each cell can be either <strong>alive</strong> or <em>dead</em>.
           In each generation, the fate of every cell is determined by counting its
           8 neighboring cells and applying the ruleset's birth and survival conditions.
         </p>
@@ -103,7 +103,7 @@ const navigateTo = (route: string) => {
     </section>
 
     <footer class="landing-footer">
-      <p>Built with Vue 3, TypeScript, and a passion for emergent complexity</p>
+      <p>Built with Vue 3, TypeScript, and a passion for the game of life!</p>
     </footer>
   </div>
 </template>
@@ -158,6 +158,14 @@ const navigateTo = (route: string) => {
 
 .intro-content strong {
   color: var(--color-primary);
+  font-style: normal;
+    font-weight: 500;
+}
+
+.intro-content em {
+  color: var(--color-danger);
+  font-style: normal;
+  font-weight: 500;
 }
 
 .rulesets {
