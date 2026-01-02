@@ -8,9 +8,8 @@ import PatternSelector from '../components/PatternSelector.vue';
 import { useGameSettings } from '../composables/useGameSettings';
 import { useGameBoard } from '../composables/useGameBoard';
 import { useGameEngine } from '../composables/useGameEngine';
-import { ConwayRuleSet, HighLifeRuleSet, SeedsRuleSet, ReanimationRuleSet, type Pattern, type Coordinate, Board, getConwayPatterns, getHighLifePatterns } from '../core';
-import { RULESET_ROUTES } from '../constants/rulesets';
-import { RULE_NAME } from '../core/types/Rules';
+import { useRulesetConfig } from '../composables/useRulesetConfig';
+import { type Pattern, type Coordinate, Board, getConwayPatterns, getHighLifePatterns } from '../core';
 
 const route = useRoute();
 const router = useRouter();
@@ -22,54 +21,9 @@ const patternsOpen = ref(true);
 // Drag preview state
 const draggedPattern = ref<Pattern | null>(null);
 
-// Create rulesets once (not in computed)
-const conwayRuleSet = new ConwayRuleSet();
-const highLifeRuleSet = new HighLifeRuleSet();
-const seedsRuleSet = new SeedsRuleSet();
-const reanimationRuleSet = new ReanimationRuleSet();
-
 // Determine ruleset from route
 const rulesetName = computed(() => route.params.ruleset as string);
-
-const rulesetConfig = computed(() => {
-
-  switch (rulesetName.value) {
-    case RULESET_ROUTES[RULE_NAME.CONWAY]:
-      return {
-        title: "Conway's Game of Life",
-        notation: 'B3/S23',
-        ruleSet: conwayRuleSet,
-        showConwayPatterns: true,
-        showHighLifePatterns: false
-      };
-    case RULESET_ROUTES[RULE_NAME.HIGHLIFE]:
-      return {
-        title: 'HighLife',
-        notation: 'B36/S23',
-        ruleSet: highLifeRuleSet,
-        showConwayPatterns: true,
-        showHighLifePatterns: true
-      };
-    case RULESET_ROUTES[RULE_NAME.SEEDS]:
-      return {
-        title: 'Seeds',
-        notation: 'B2/S',
-        ruleSet: seedsRuleSet,
-        showConwayPatterns: true,
-        showHighLifePatterns: false
-      };
-    case RULESET_ROUTES[RULE_NAME.REANIMATION]:
-      return {
-        title: 'Reanimation',
-        notation: '3-State',
-        ruleSet: reanimationRuleSet,
-        showConwayPatterns: true,
-        showHighLifePatterns: false
-      };
-    default:
-      return null;
-  }
-});
+const rulesetConfig = useRulesetConfig(rulesetName);
 
 // Redirect if invalid ruleset
 if (!rulesetConfig.value) {

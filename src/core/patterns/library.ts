@@ -113,46 +113,51 @@ const GOSPER_GLIDER_GUN: PatternDefinition = {
   width: 36,
   height: 9,
   cells: [
-    // Left square
-    coord(4, 0),
-    coord(4, 1),
-    coord(5, 0),
-    coord(5, 1),
-    // Left part
+    // Row 0: ........................O
+    coord(0, 24),
+    // Row 1: ......................O.O
+    coord(1, 22),
+    coord(1, 24),
+    // Row 2: ............OO......OO............OO
     coord(2, 12),
     coord(2, 13),
+    coord(2, 20),
+    coord(2, 21),
+    coord(2, 34),
+    coord(2, 35),
+    // Row 3: ...........O...O....OO............OO
     coord(3, 11),
     coord(3, 15),
+    coord(3, 20),
+    coord(3, 21),
+    coord(3, 34),
+    coord(3, 35),
+    // Row 4: OO........O.....O...OO
+    coord(4, 0),
+    coord(4, 1),
     coord(4, 10),
     coord(4, 16),
+    coord(4, 20),
+    coord(4, 21),
+    // Row 5: OO........O...O.OO....O.O
+    coord(5, 0),
+    coord(5, 1),
     coord(5, 10),
     coord(5, 14),
     coord(5, 16),
     coord(5, 17),
+    coord(5, 22),
+    coord(5, 24),
+    // Row 6: ..........O.....O.......O
     coord(6, 10),
     coord(6, 16),
+    coord(6, 24),
+    // Row 7: ...........O...O
     coord(7, 11),
     coord(7, 15),
+    // Row 8: ............OO
     coord(8, 12),
-    coord(8, 13),
-    // Middle part
-    coord(1, 24),
-    coord(2, 22),
-    coord(2, 24),
-    coord(3, 20),
-    coord(3, 21),
-    coord(4, 20),
-    coord(4, 21),
-    coord(5, 20),
-    coord(5, 21),
-    coord(6, 22),
-    coord(6, 24),
-    coord(7, 24),
-    // Right square
-    coord(4, 34),
-    coord(4, 35),
-    coord(5, 34),
-    coord(5, 35)
+    coord(8, 13)
   ]
 };
 
