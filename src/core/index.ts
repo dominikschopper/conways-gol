@@ -12,8 +12,8 @@ export { SparseGrid } from './data-structures/SparseGrid';
 export { Board } from './engine/Board';
 export { Engine, type EngineState, type EngineConfig } from './engine/Engine';
 export { NeighborCounter } from './engine/NeighborCounter';
-export { ConwayRuleSet, HighLifeRuleSet, type RuleSet } from './engine/RuleSet';
+export { ConwayRuleSet, HighLifeRuleSet, SeedsRuleSet, type RuleSet } from './engine/RuleSet';
 
 // Patterns
 export { Pattern } from './patterns/Pattern';
-export { PATTERN_LIBRARY, getAllPatterns } from './patterns/library';
+export { CONWAY_PATTERNS, HIGHLIFE_PATTERNS, getConwayPatterns, getHighLifePatterns } from './patterns/library';

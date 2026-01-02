@@ -9,6 +9,7 @@ export function useGameEngine(
   const engine = ref<Engine>(new Engine(board.value, { tickRate: initialTickRate }));
   const state = ref<EngineState>('stopped');
   const tickRate = ref(initialTickRate);
+  const currentRuleSet = ref<RuleSet | null>(null);
 
   // Update engine callback
   engine.value.onTick(onTick);
@@ -19,6 +20,10 @@ export function useGameEngine(
     engine.value.stop();
     engine.value = new Engine(newBoard, { tickRate: tickRate.value });
     engine.value.onTick(onTick);
+    // Reapply ruleset if one was set
+    if (currentRuleSet.value) {
+      engine.value.setRuleSet(currentRuleSet.value);
+    }
     if (wasRunning) {
       engine.value.start();
     }
@@ -31,6 +36,10 @@ export function useGameEngine(
     engine.value.stop();
     engine.value = new Engine(board.value, { tickRate: tickRate.value });
     engine.value.onTick(onTick);
+    // Reapply ruleset if one was set
+    if (currentRuleSet.value) {
+      engine.value.setRuleSet(currentRuleSet.value);
+    }
     if (wasRunning) {
       engine.value.start();
     }
@@ -62,6 +71,7 @@ export function useGameEngine(
   };
 
   const setRuleSet = (ruleSet: RuleSet) => {
+    currentRuleSet.value = ruleSet;
     engine.value.setRuleSet(ruleSet);
   };
 

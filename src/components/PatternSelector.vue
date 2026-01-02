@@ -1,17 +1,33 @@
 <script setup lang="ts">
-import { getAllPatterns, type Pattern, type Coordinate } from '@/core';
+import { computed } from 'vue';
+import type { Pattern, Coordinate } from '@/core';
+import { getConwayPatterns, getHighLifePatterns } from '@/core';
 
 const props = defineProps<{
   rows: number
   cols: number
   livingCells: Coordinate[]
+  showConwayPatterns?: boolean
+  showHighLifePatterns?: boolean
 }>();
 
 const emit = defineEmits<{
   selectPattern: [pattern: Pattern, position: Coordinate]
 }>();
 
-const patterns = getAllPatterns()
+const patterns = computed(() => {
+  const result: Pattern[] = [];
+
+  if (props.showConwayPatterns !== false) {
+    result.push(...getConwayPatterns());
+  }
+
+  if (props.showHighLifePatterns) {
+    result.push(...getHighLifePatterns());
+  }
+
+  return result;
+})
 
 // Find a random free position for pattern
 const findRandomPosition = (pattern: Pattern): Coordinate => {
