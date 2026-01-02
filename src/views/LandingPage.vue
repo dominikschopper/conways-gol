@@ -5,39 +5,21 @@ const router = useRouter();
 
 const rulesets = [
   {
-    name: "Conway's Game of Life",
+    name: "Classic",
     route: '/game/conway',
     notation: 'B3/S23',
-    description: 'The classic cellular automaton invented by mathematician John Conway in 1970. Simple rules create complex, emergent patterns.',
-    features: [
-      'Birth: exactly 3 neighbors',
-      'Survival: 2 or 3 neighbors',
-      'Classic patterns: Gliders, Blinkers, Spaceships'
-    ],
     color: '#00ff88'
   },
   {
     name: 'HighLife',
     route: '/game/highlife',
     notation: 'B36/S23',
-    description: 'A fascinating variant that introduces replication. Patterns can spontaneously create copies of themselves, leading to explosive growth.',
-    features: [
-      'Birth: 3 or 6 neighbors',
-      'Survival: 2 or 3 neighbors',
-      'Unique: Self-replicating patterns (Replicators)'
-    ],
     color: '#ff6b9d'
   },
   {
     name: 'Seeds',
     route: '/game/seeds',
     notation: 'B2/S',
-    description: 'Pure chaos! Every cell dies immediately after birth, creating explosive, ever-expanding patterns. Watch the beautiful entropy unfold.',
-    features: [
-      'Birth: exactly 2 neighbors',
-      'Survival: NONE - all cells die!',
-      'Chaotic, expanding patterns'
-    ],
     color: '#ffa500'
   }
 ];
@@ -50,9 +32,9 @@ const navigateTo = (route: string) => {
 <template>
   <div class="landing-page">
     <header class="hero">
-      <h1 class="hero-title">Game of Life Explorer</h1>
+      <h1 class="hero-title">Conways Game of Life</h1>
       <p class="hero-subtitle">
-        Explore the fascinating world of cellular automata
+        Explore cellular automata
       </p>
     </header>
 
@@ -73,6 +55,31 @@ const navigateTo = (route: string) => {
       </div>
     </section>
 
+    <section class="intro">
+      <div class="intro-content">
+      <h2>How It Works</h2>
+      <div class="steps">
+
+        <div class="step">
+          <div class="step-number">1</div>
+          <h3>Choose a Ruleset</h3>
+          <p>Select the ruleset you wnat to explore below.</p>
+        </div>
+
+        <div class="step">
+          <div class="step-number">2</div>
+          <h3>Place Patterns</h3>
+          <p>Create a pattern by clicking or select a predefined one.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <h3>Watch Evolution</h3>
+          <p>Hit step or play and watch!</p>
+        </div>
+      </div>
+      </div>
+    </section>
+
     <section class="rulesets">
       <h2>Choose Your Ruleset</h2>
 
@@ -88,38 +95,9 @@ const navigateTo = (route: string) => {
             <span class="notation">{{ ruleset.notation }}</span>
           </div>
 
-          <p class="card-description">{{ ruleset.description }}</p>
-
-          <ul class="card-features">
-            <li v-for="(feature, index) in ruleset.features" :key="index">
-              {{ feature }}
-            </li>
-          </ul>
-
           <button class="card-cta" :style="{ background: ruleset.color }">
             Explore {{ ruleset.name }} →
           </button>
-        </div>
-      </div>
-    </section>
-
-    <section class="how-it-works">
-      <h2>How It Works</h2>
-      <div class="steps">
-        <div class="step">
-          <div class="step-number">1</div>
-          <h3>Choose a Ruleset</h3>
-          <p>Select Conway's classic rules or try the HighLife variant</p>
-        </div>
-        <div class="step">
-          <div class="step-number">2</div>
-          <h3>Place Patterns</h3>
-          <p>Click cells to create patterns, or use pre-defined structures</p>
-        </div>
-        <div class="step">
-          <div class="step-number">3</div>
-          <h3>Watch Evolution</h3>
-          <p>Hit play and observe how patterns evolve over generations</p>
         </div>
       </div>
     </section>
@@ -140,14 +118,14 @@ const navigateTo = (route: string) => {
 
 .hero {
   text-align: center;
-  padding: 4rem 2rem 3rem;
+  padding: 1.5rem 0;
   background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
   border-bottom: 1px solid var(--border-color);
 }
 
 .hero-title {
-  font-size: 3rem;
-  margin: 0 0 1rem 0;
+  font-size: 1.666rem;
+  margin: 0 0 0.25rem 0;
   font-weight: 700;
   background: linear-gradient(135deg, var(--color-primary) 0%, #00ff88 100%);
   -webkit-background-clip: text;
@@ -156,27 +134,25 @@ const navigateTo = (route: string) => {
 }
 
 .hero-subtitle {
-  font-size: 1.3rem;
+  font-size: 1rem;
   margin: 0;
   color: var(--text-secondary);
 }
 
 .intro {
   max-width: 800px;
-  margin: 0 auto;
-  padding: 3rem 2rem;
+  margin: 1.5rem auto;
 }
 
 .intro-content h2 {
-  font-size: 2rem;
-  margin-bottom: 1.5rem;
+  font-size: 1.666rem;
+  margin-bottom: .5rem;
   text-align: center;
 }
 
 .intro-content p {
-  font-size: 1.1rem;
-  line-height: 1.7;
-  margin-bottom: 1rem;
+  font-size: 1rem;
+  margin-bottom: .5rem;
   color: var(--text-secondary);
 }
 
@@ -187,22 +163,29 @@ const navigateTo = (route: string) => {
 .rulesets {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 3rem 2rem;
+  margin: 1.5rem auto;
+  padding: 1rem 2rem;
 }
 
 .rulesets h2 {
-  font-size: 2rem;
+  font-size: 1.5rem;
   text-align: center;
-  margin-bottom: 2.5rem;
+  margin-bottom: .5rem;
 }
 
 .ruleset-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 2rem;
+  justify-content: center;
 }
 
 .ruleset-card {
+  flex: 1 1 350px;
+  max-width: 400px;
+  display:flex;
+  flex-direction: column;
+  justify-content: space-between;
   background: var(--bg-secondary);
   border: 2px solid var(--border-color);
   border-radius: 12px;
@@ -219,7 +202,7 @@ const navigateTo = (route: string) => {
 .card-header {
   border-left: 4px solid;
   padding-left: 1rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .card-header h3 {
@@ -237,32 +220,6 @@ const navigateTo = (route: string) => {
   color: var(--color-primary);
 }
 
-.card-description {
-  font-size: 1rem;
-  line-height: 1.6;
-  color: var(--text-secondary);
-  margin-bottom: 1.5rem;
-}
-
-.card-features {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 2rem 0;
-}
-
-.card-features li {
-  padding: 0.5rem 0;
-  padding-left: 1.5rem;
-  position: relative;
-  color: var(--text-secondary);
-}
-
-.card-features li::before {
-  content: '▸';
-  position: absolute;
-  left: 0;
-  color: var(--color-primary);
-}
 
 .card-cta {
   width: 100%;
@@ -280,22 +237,10 @@ const navigateTo = (route: string) => {
   opacity: 0.9;
 }
 
-.how-it-works {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 3rem 2rem 4rem;
-}
-
-.how-it-works h2 {
-  font-size: 2rem;
-  text-align: center;
-  margin-bottom: 3rem;
-}
-
 .steps {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 2rem;
+  gap: 1rem;
 }
 
 .step {
@@ -341,10 +286,6 @@ const navigateTo = (route: string) => {
 
   .hero-subtitle {
     font-size: 1.1rem;
-  }
-
-  .ruleset-grid {
-    grid-template-columns: 1fr;
   }
 }
 </style>
