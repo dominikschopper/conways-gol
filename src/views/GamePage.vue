@@ -165,7 +165,7 @@ const handleSpeedChange = (event: Event) => {
             class="collapsible-header"
             @click="settingsOpen = !settingsOpen"
           >
-            <span>{{ settingsOpen ? '▼' : '▶' }} Settings</span>
+            <span><i aria-hidden="true" class="symb">{{ settingsOpen ? 'expand_content' : 'collapse_content' }}</i> Settings</span>
           </button>
           <div v-show="settingsOpen" class="collapsible-content">
             <GameSettings
@@ -184,7 +184,10 @@ const handleSpeedChange = (event: Event) => {
             class="collapsible-header"
             @click="patternsOpen = !patternsOpen"
           >
-            <span>{{ patternsOpen ? '▼' : '▶' }} Patterns</span>
+            <span>
+              <i aria-hidden="true" class="symb">{{ patternsOpen ? 'expand_content' : 'collapse_content' }}</i>
+              Patterns
+            </span>
           </button>
           <div v-show="patternsOpen" class="collapsible-content">
             <PatternSelector
