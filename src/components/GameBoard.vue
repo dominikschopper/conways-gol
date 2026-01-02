@@ -1,18 +1,21 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, computed } from 'vue'
-import type { Coordinate } from '@/core'
+import type { Coordinate, Pattern } from '@/core'
 import { useCellRenderer } from '@/composables/useCellRenderer'
 import { coord, CELL_STATE } from '@/core'
+import PatternPreview from './PatternPreview.vue'
 
 const props = defineProps<{
   rows: number
   cols: number
   livingCells: Coordinate[]
   dyingCells?: Coordinate[]
+  draggedPattern?: Pattern | null
 }>()
 
 const emit = defineEmits<{
   toggleCell: [coordinate: Coordinate]
+  dropPattern: [patternName: string, position: Coordinate]
 }>()
 
 const boardRef = ref<HTMLDivElement | null>(null);
@@ -122,6 +125,35 @@ const handleBoardClick = (event: MouseEvent) => {
   }
 }
 
+// Drag and drop handlers
+const handleDragOver = (event: DragEvent) => {
+  event.preventDefault()
+  if (event.dataTransfer) {
+    event.dataTransfer.dropEffect = 'copy'
+  }
+}
+
+const handleDrop = (event: DragEvent) => {
+  event.preventDefault()
+
+  if (!boardRef.value || !event.dataTransfer) return
+
+  const patternName = event.dataTransfer.getData('pattern-name')
+  if (!patternName) return
+
+  // Calculate position from mouse coordinates
+  const rect = boardRef.value.getBoundingClientRect()
+  const x = event.clientX - rect.left
+  const y = event.clientY - rect.top
+
+  const col = Math.floor(x / cellSize.value)
+  const row = Math.floor(y / cellSize.value)
+
+  if (row >= 0 && row < props.rows && col >= 0 && col < props.cols) {
+    emit('dropPattern', patternName, coord(row, col))
+  }
+}
+
 // Clear on mount
 onMounted(() => {
   clearAllCells()
@@ -138,7 +170,16 @@ onMounted(() => {
       backgroundSize: `${cellSize}px ${cellSize}px`
     }"
     @click="handleBoardClick"
-  />
+    @dragover="handleDragOver"
+    @drop="handleDrop"
+  >
+    <PatternPreview
+      :pattern="draggedPattern || null"
+      :cell-size="cellSize"
+      :rows="rows"
+      :cols="cols"
+    />
+  </div>
 </template>
 
 <style scoped>

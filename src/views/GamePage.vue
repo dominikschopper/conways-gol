@@ -8,7 +8,7 @@ import PatternSelector from '../components/PatternSelector.vue';
 import { useGameSettings } from '../composables/useGameSettings';
 import { useGameBoard } from '../composables/useGameBoard';
 import { useGameEngine } from '../composables/useGameEngine';
-import { ConwayRuleSet, HighLifeRuleSet, SeedsRuleSet, ReanimationRuleSet, type Pattern, type Coordinate, Board } from '../core';
+import { ConwayRuleSet, HighLifeRuleSet, SeedsRuleSet, ReanimationRuleSet, type Pattern, type Coordinate, Board, getConwayPatterns, getHighLifePatterns } from '../core';
 import { RULESET_ROUTES } from '../constants/rulesets';
 import { RULE_NAME } from '../core/types/Rules';
 
@@ -18,6 +18,9 @@ const router = useRouter();
 // Collapsible state
 const settingsOpen = ref(true);
 const patternsOpen = ref(true);
+
+// Drag preview state
+const draggedPattern = ref<Pattern | null>(null);
 
 // Create rulesets once (not in computed)
 const conwayRuleSet = new ConwayRuleSet();
@@ -135,9 +138,53 @@ const handleSettingsChange = (newSettings: Partial<typeof config.value>) => {
   }
 };
 
-// Handle pattern placement
+// Create pattern lookup map
+const patternMap = computed(() => {
+  const map = new Map<string, Pattern>();
+
+  if (rulesetConfig.value?.showConwayPatterns) {
+    for (const pattern of getConwayPatterns()) {
+      map.set(pattern.getName(), pattern);
+    }
+  }
+
+  if (rulesetConfig.value?.showHighLifePatterns) {
+    for (const pattern of getHighLifePatterns()) {
+      map.set(pattern.getName(), pattern);
+    }
+  }
+
+  return map;
+});
+
+// Handle pattern placement (from click)
 const handleSelectPattern = (pattern: Pattern, position: Coordinate) => {
   placePattern(pattern, position);
+};
+
+// Handle pattern placement (from drop)
+const handleDropPattern = (patternName: string, position: Coordinate) => {
+  const pattern = patternMap.value.get(patternName);
+  if (!pattern) return;
+
+  // Validate pattern fits within board bounds
+  const patternCells = pattern.getCellsAtPosition(position);
+  const allInBounds = patternCells.every(
+    cell => cell.row >= 0 && cell.row < rows.value &&
+            cell.col >= 0 && cell.col < cols.value
+  );
+
+  if (allInBounds) {
+    placePattern(pattern, position);
+  }
+
+  // Clear drag preview
+  draggedPattern.value = null;
+};
+
+// Handle drag preview
+const handleDragPattern = (pattern: Pattern | null) => {
+  draggedPattern.value = pattern;
 };
 
 // Navigate back to landing
@@ -215,6 +262,7 @@ const handleSpeedChange = (event: Event) => {
               :show-conway-patterns="rulesetConfig.showConwayPatterns"
               :show-high-life-patterns="rulesetConfig.showHighLifePatterns"
               @select-pattern="handleSelectPattern"
+              @drag-pattern="handleDragPattern"
             />
           </div>
         </div>
@@ -227,7 +275,9 @@ const handleSpeedChange = (event: Event) => {
           :cols="cols"
           :living-cells="livingCells"
           :dying-cells="dyingCells"
+          :dragged-pattern="draggedPattern"
           @toggle-cell="toggleCell"
+          @drop-pattern="handleDropPattern"
         />
       </main>
     </div>

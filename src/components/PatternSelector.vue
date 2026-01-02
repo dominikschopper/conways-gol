@@ -14,6 +14,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   selectPattern: [pattern: Pattern, position: Coordinate]
+  dragPattern: [pattern: Pattern | null]
 }>();
 
 const patterns = computed(() => {
@@ -67,10 +68,33 @@ const placePattern = (pattern: Pattern) => {
   const position = findRandomPosition(pattern)
   emit('selectPattern', pattern, position)
 }
+
+// Drag handlers
+const handleDragStart = (event: DragEvent, pattern: Pattern) => {
+  if (!event.dataTransfer) return
+
+  // Store pattern name in dataTransfer
+  event.dataTransfer.setData('pattern-name', pattern.getName())
+  event.dataTransfer.effectAllowed = 'copy'
+
+  // Create an invisible drag image to hide the button during drag
+  const img = new Image()
+  img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
+  event.dataTransfer.setDragImage(img, 0, 0)
+
+  // Emit drag event so parent can show preview
+  emit('dragPattern', pattern)
+}
+
+const handleDragEnd = () => {
+  // Emit with null to clear preview
+  emit('dragPattern', null)
+}
 </script>
 
 <template>
   <section class="pattern-selector">
+    <p class="hint">you can drag'n'drop the patterns onto the board!</p>
     <div class="pattern-list">
       <div
         v-for="pattern in patterns"
@@ -79,6 +103,9 @@ const placePattern = (pattern: Pattern) => {
       >
         <button
           @click="placePattern(pattern)"
+          @dragstart="handleDragStart($event, pattern)"
+          @dragend="handleDragEnd"
+          draggable="true"
           class="pattern-button"
         >
           {{ pattern.getName() }}
@@ -93,6 +120,11 @@ const placePattern = (pattern: Pattern) => {
 .pattern-selector {
   display: flex;
   flex-direction: column;
+  .hint{
+    text-align: center;
+    font-size: .75em;
+    padding: .125em 0;
+  }
 }
 
 .pattern-list {
@@ -125,5 +157,14 @@ const placePattern = (pattern: Pattern) => {
   background: var(--color-primary);
   color: #000;
   border-color: var(--color-primary);
+}
+
+.pattern-button[draggable="true"] {
+  cursor: grab;
+}
+
+.pattern-button[draggable="true"]:active {
+  cursor: grabbing;
+  opacity: 0.5;
 }
 </style>
