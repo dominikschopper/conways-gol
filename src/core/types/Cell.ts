@@ -4,8 +4,15 @@ export type Coordinate = {
   readonly col: number
 }
 
-// Cell state
-export type CellState = 'alive' | 'dead'
+// Cell state enum
+export const CELL_STATE = {
+  DEAD: 'DEAD',
+  ALIVE: 'ALIVE',
+  DYING: 'DYING',
+} as const;
+
+// Cell state type
+export type CellState = typeof CELL_STATE[keyof typeof CELL_STATE];
 
 // Helper to create coordinate
 export const coord = (row: number, col: number): Coordinate => ({ row, col });

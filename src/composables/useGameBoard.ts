@@ -5,6 +5,7 @@ import { Board, Pattern } from '@/core';
 export function useGameBoard(config: Ref<BoardConfig>) {
   const board = ref<Board>(new Board(config.value));
   const livingCells = ref<Coordinate[]>([]);
+  const dyingCells = ref<Coordinate[]>([]);
   const generation = ref(0);
   const livingCellCount = computed(() => livingCells.value.length);
 
@@ -25,6 +26,7 @@ export function useGameBoard(config: Ref<BoardConfig>) {
 
   const updateState = () => {
     livingCells.value = board.value.getLivingCells();
+    dyingCells.value = board.value.getDyingCells();
     generation.value = board.value.getGeneration();
   };
 
@@ -46,6 +48,7 @@ export function useGameBoard(config: Ref<BoardConfig>) {
   return {
     board,
     livingCells,
+    dyingCells,
     generation,
     livingCellCount,
     toggleCell,

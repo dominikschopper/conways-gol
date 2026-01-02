@@ -113,7 +113,7 @@ Add "Reanimation" ruleset with 3 cell states: DEAD (black) → ALIVE (green) →
         name: 'Reanimation',
         route: `/game/${RULESET_ROUTES[RULE_NAME.REANIMATION]}`,
         notation: '3-State',
-        color: '#ffff00'
+        color: '#d9d928'
       }
       ```
 

@@ -23,6 +23,12 @@ const rulesets = [
     route: `/game/${RULESET_ROUTES[RULE_NAME.SEEDS]}`,
     notation: 'B2/S',
     color: '#ffa500'
+  },
+  {
+    name: 'Reanimation',
+    route: `/game/${RULESET_ROUTES[RULE_NAME.REANIMATION]}`,
+    notation: '3-State',
+    color: '#d9d928'
   }
 ];
 
@@ -191,8 +197,8 @@ const navigateTo = (route: string) => {
 }
 
 .ruleset-card {
-  flex: 1 1 250px;
-  max-width: 350px;
+  flex: 1 1 300px;
+  max-width: 450px;
   display:flex;
   flex-direction: column;
   justify-content: space-between;

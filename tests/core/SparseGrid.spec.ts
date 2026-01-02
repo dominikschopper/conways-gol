@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { SparseGrid } from '@/core/data-structures/SparseGrid';
-import { coord } from '@/core/types/Cell';
+import { coord, CELL_STATE } from '@/core/types/Cell';
 import type { BoardConfig } from '@/core/types/Board';
 
 describe('SparseGrid', () => {
@@ -193,6 +193,131 @@ describe('SparseGrid', () => {
         c.row < 0 || c.row >= 10 || c.col < 0 || c.col >= 10
       );
       expect(outOfBounds).toBe(false);
+    });
+  });
+
+  describe('Multi-state support (dying cells)', () => {
+    it('should track dying cells separately from living cells', () => {
+      const grid = new SparseGrid();
+      grid.setAlive(coord(5, 5));
+      grid.setDying(coord(6, 6));
+
+      expect(grid.isAlive(coord(5, 5))).toBe(true);
+      expect(grid.isDying(coord(5, 5))).toBe(false);
+      expect(grid.isAlive(coord(6, 6))).toBe(false);
+      expect(grid.isDying(coord(6, 6))).toBe(true);
+    });
+
+    it('should return correct cell state', () => {
+      const grid = new SparseGrid();
+      grid.setAlive(coord(1, 1));
+      grid.setDying(coord(2, 2));
+
+      expect(grid.getState(coord(1, 1))).toBe(CELL_STATE.ALIVE);
+      expect(grid.getState(coord(2, 2))).toBe(CELL_STATE.DYING);
+      expect(grid.getState(coord(3, 3))).toBe(CELL_STATE.DEAD);
+    });
+
+    it('should move cell from alive to dying', () => {
+      const grid = new SparseGrid([coord(5, 5)]);
+      expect(grid.isAlive(coord(5, 5))).toBe(true);
+
+      grid.setDying(coord(5, 5));
+      expect(grid.isAlive(coord(5, 5))).toBe(false);
+      expect(grid.isDying(coord(5, 5))).toBe(true);
+    });
+
+    it('should move cell from dying to alive', () => {
+      const grid = new SparseGrid();
+      grid.setDying(coord(5, 5));
+      expect(grid.isDying(coord(5, 5))).toBe(true);
+
+      grid.setAlive(coord(5, 5));
+      expect(grid.isDying(coord(5, 5))).toBe(false);
+      expect(grid.isAlive(coord(5, 5))).toBe(true);
+    });
+
+    it('should remove dying cell when setting dead', () => {
+      const grid = new SparseGrid();
+      grid.setDying(coord(5, 5));
+      expect(grid.isDying(coord(5, 5))).toBe(true);
+
+      grid.setDead(coord(5, 5));
+      expect(grid.isDying(coord(5, 5))).toBe(false);
+      expect(grid.getState(coord(5, 5))).toBe(CELL_STATE.DEAD);
+    });
+
+    it('should return dying cells separately', () => {
+      const grid = new SparseGrid();
+      grid.setAlive(coord(1, 1));
+      grid.setDying(coord(2, 2));
+      grid.setDying(coord(3, 3));
+
+      const livingCells = grid.getLivingCells();
+      const dyingCells = grid.getDyingCells();
+
+      expect(livingCells).toHaveLength(1);
+      expect(dyingCells).toHaveLength(2);
+      expect(dyingCells.some(c => c.row === 2 && c.col === 2)).toBe(true);
+      expect(dyingCells.some(c => c.row === 3 && c.col === 3)).toBe(true);
+    });
+
+    it('should clear both living and dying cells', () => {
+      const grid = new SparseGrid();
+      grid.setAlive(coord(1, 1));
+      grid.setDying(coord(2, 2));
+
+      grid.clear();
+
+      expect(grid.getLivingCells()).toHaveLength(0);
+      expect(grid.getDyingCells()).toHaveLength(0);
+    });
+
+    it('should include dying cells in cells to evaluate', () => {
+      const grid = new SparseGrid();
+      grid.setDying(coord(5, 5));
+
+      const cellsToEvaluate = grid.getCellsToEvaluate();
+
+      // Should include the dying cell itself
+      expect(cellsToEvaluate.some(c => c.row === 5 && c.col === 5)).toBe(true);
+    });
+
+    it('dying cells should NOT increment neighbor counts', () => {
+      const grid = new SparseGrid();
+      grid.setDying(coord(5, 5));
+
+      // All 8 neighbors should have count of 0 (dying cells don't count)
+      expect(grid.getNeighborCount(coord(4, 4))).toBe(0);
+      expect(grid.getNeighborCount(coord(4, 5))).toBe(0);
+      expect(grid.getNeighborCount(coord(5, 4))).toBe(0);
+      expect(grid.getNeighborCount(coord(6, 6))).toBe(0);
+    });
+
+    it('should decrement neighbor counts when transitioning alive to dying', () => {
+      const grid = new SparseGrid();
+      grid.setAlive(coord(5, 5));
+
+      // Neighbors should have count of 1
+      expect(grid.getNeighborCount(coord(4, 5))).toBe(1);
+
+      grid.setDying(coord(5, 5));
+
+      // Neighbors should now have count of 0
+      expect(grid.getNeighborCount(coord(4, 5))).toBe(0);
+    });
+
+    it('should increment neighbor counts when transitioning dying to alive', () => {
+      const grid = new SparseGrid();
+      grid.setDying(coord(5, 5));
+
+      // Neighbors should have count of 0
+      expect(grid.getNeighborCount(coord(4, 5))).toBe(0);
+
+      grid.setAlive(coord(5, 5));
+
+      // Neighbors should now have count of 1
+      expect(grid.getNeighborCount(coord(4, 5))).toBe(1);
     });
   });
 });

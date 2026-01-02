@@ -2,7 +2,7 @@
 export type { Coordinate, CellState } from './types/Cell';
 export type { BoardConfig, BoardState } from './types/Board';
 export type { PatternDefinition } from './types/Pattern';
-export { coord, coordEquals, coordHash } from './types/Cell';
+export { coord, coordEquals, coordHash, CELL_STATE } from './types/Cell';
 
 // Data Structures
 export { CellSet } from './data-structures/CellSet';
@@ -12,7 +12,15 @@ export { SparseGrid } from './data-structures/SparseGrid';
 export { Board } from './engine/Board';
 export { Engine, type EngineState, type EngineConfig } from './engine/Engine';
 export { NeighborCounter } from './engine/NeighborCounter';
-export { ConwayRuleSet, HighLifeRuleSet, SeedsRuleSet, type RuleSet } from './engine/RuleSet';
+export {
+  ConwayRuleSet,
+  HighLifeRuleSet,
+  SeedsRuleSet,
+  ReanimationRuleSet,
+  type RuleSet,
+  type MultiStateRuleSet,
+  isMultiStateRuleSet
+} from './engine/RuleSet';
 
 // Patterns
 export { Pattern } from './patterns/Pattern';

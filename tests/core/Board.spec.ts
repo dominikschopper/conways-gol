@@ -120,7 +120,7 @@ describe('Board', () => {
       expect(state.livingCells.size).toBe(2);
 
       const newBoard = new Board(config);
-      newBoard.setState([coord(3, 3)], 5);
+      newBoard.setState([coord(3, 3)], undefined, 5);
       expect(newBoard.livingCellCount).toBe(1);
       expect(newBoard.getGeneration()).toBe(5);
       expect(newBoard.isAlive(coord(3, 3))).toBe(true);

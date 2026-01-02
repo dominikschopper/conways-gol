@@ -1,4 +1,4 @@
-import type { Coordinate } from '../types/Cell';
+import type { Coordinate, CellState } from '../types/Cell';
 import type { BoardConfig, BoardState } from '../types/Board';
 import { SparseGrid } from '../data-structures/SparseGrid';
 import { NeighborCounter } from './NeighborCounter';
@@ -17,7 +17,6 @@ export class Board {
     private config: BoardConfig,
     initialCells?: Coordinate[]
   ) {
-    console.log('🎮 Board created with config:', JSON.stringify(config));
     this.grid = new SparseGrid(initialCells, config);
     this.neighborCounter = new NeighborCounter(config);
   }
@@ -26,9 +25,19 @@ export class Board {
     return this.isValidCoordinate(coordinate) && this.grid.isAlive(coordinate);
   }
 
+  isDying(coordinate: Coordinate): boolean {
+    return this.isValidCoordinate(coordinate) && this.grid.isDying(coordinate);
+  }
+
   setAlive(coordinate: Coordinate): void {
     if (this.isValidCoordinate(coordinate)) {
       this.grid.setAlive(coordinate);
+    }
+  }
+
+  setDying(coordinate: Coordinate): void {
+    if (this.isValidCoordinate(coordinate)) {
+      this.grid.setDying(coordinate);
     }
   }
 
@@ -53,6 +62,14 @@ export class Board {
     return this.grid.getLivingCells();
   }
 
+  getDyingCells(): Coordinate[] {
+    return this.grid.getDyingCells();
+  }
+
+  getCellState(coordinate: Coordinate): CellState {
+    return this.grid.getState(coordinate);
+  }
+
   getGeneration(): number {
     return this.generation;
   }
@@ -68,10 +85,15 @@ export class Board {
     };
   }
 
-  setState(cells: Coordinate[], generation?: number): void {
+  setState(cells: Coordinate[], dyingCells?: Coordinate[], generation?: number): void {
     this.grid.clear();
     for (const cell of cells) {
       this.grid.setAlive(cell);
+    }
+    if (dyingCells) {
+      for (const cell of dyingCells) {
+        this.grid.setDying(cell);
+      }
     }
     if (generation !== undefined) {
       this.generation = generation;

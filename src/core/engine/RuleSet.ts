@@ -1,3 +1,5 @@
+import { CELL_STATE, type CellState } from '../types/Cell';
+
 /**
  * Rule set for Game of Life
  * Determines cell survival and birth conditions
@@ -6,6 +8,21 @@ export interface RuleSet {
   shouldSurvive(neighborCount: number): boolean
   shouldBeBorn(neighborCount: number): boolean
   getName(): string
+}
+
+/**
+ * Extended rule set for multi-state cellular automata
+ * Allows cells to have more than just alive/dead states
+ */
+export interface MultiStateRuleSet extends RuleSet {
+  getNextState(currentState: CellState, aliveNeighborCount: number): CellState;
+}
+
+/**
+ * Type guard to check if a RuleSet is a MultiStateRuleSet
+ */
+export function isMultiStateRuleSet(ruleSet: RuleSet): ruleSet is MultiStateRuleSet {
+  return 'getNextState' in ruleSet;
 }
 
 /**
@@ -65,5 +82,57 @@ export class SeedsRuleSet implements RuleSet {
 
   getName(): string {
     return 'Seeds (B2/S)';
+  }
+}
+
+/**
+ * Reanimation (3-State)
+ * States: DEAD → ALIVE → DYING → DEAD
+ * - ALIVE cell with <2 or >3 alive neighbors → DYING
+ * - ALIVE cell with 2-3 alive neighbors → ALIVE (survives)
+ * - DYING cell with 2-4 alive neighbors → ALIVE (reanimated!)
+ * - DYING cell otherwise → DEAD
+ * - DEAD cell with exactly 3 alive neighbors → ALIVE (birth)
+ * Note: Only ALIVE cells count as neighbors (DYING cells do not)
+ */
+export class ReanimationRuleSet implements MultiStateRuleSet {
+  shouldSurvive(neighborCount: number): boolean {
+    return neighborCount === 2 || neighborCount === 3;
+  }
+
+  shouldBeBorn(neighborCount: number): boolean {
+    return neighborCount === 3;
+  }
+
+  getNextState(currentState: CellState, aliveNeighborCount: number): CellState {
+    switch (currentState) {
+      case CELL_STATE.ALIVE:
+        // Alive cells with 2-3 neighbors survive, otherwise become dying
+        if (aliveNeighborCount === 2 || aliveNeighborCount === 3) {
+          return CELL_STATE.ALIVE;
+        }
+        return CELL_STATE.DYING;
+
+      case CELL_STATE.DYING:
+        // Dying cells with 2-4 neighbors get reanimated!
+        if (aliveNeighborCount >= 2 && aliveNeighborCount <= 4) {
+          return CELL_STATE.ALIVE;
+        }
+        return CELL_STATE.DEAD;
+
+      case CELL_STATE.DEAD:
+        // Dead cells with exactly 3 neighbors are born
+        if (aliveNeighborCount === 3) {
+          return CELL_STATE.ALIVE;
+        }
+        return CELL_STATE.DEAD;
+
+      default:
+        return CELL_STATE.DEAD;
+    }
+  }
+
+  getName(): string {
+    return 'Reanimation (3-State)';
   }
 }

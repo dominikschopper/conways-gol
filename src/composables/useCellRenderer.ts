@@ -1,5 +1,6 @@
 import { ref, onUnmounted } from 'vue';
 import type { Coordinate } from '@/core';
+import { CELL_STATE, type CellState } from '@/core';
 
 /**
  * Flyweight pattern for cell rendering
@@ -10,14 +11,26 @@ export function useCellRenderer() {
   const activeCells = new Map<string, HTMLDivElement>();
   const cellSize = ref(8); // pixels
 
-  const createCellElement = (): HTMLDivElement => {
+  const createCellElement = (state: CellState = CELL_STATE.ALIVE): HTMLDivElement => {
     const cell = document.createElement('div');
     cell.className = 'cell';
     cell.style.width = `${cellSize.value}px`;
     cell.style.height = `${cellSize.value}px`;
     cell.style.position = 'absolute';
-    cell.style.backgroundColor = 'var(--cell-color, #00ff41)';
+    cell.style.backgroundColor = getCellColor(state);
     return cell;
+  };
+
+  const getCellColor = (state: CellState): string => {
+    switch (state) {
+      case CELL_STATE.ALIVE:
+        return 'var(--cell-color, #00ff41)';
+      case CELL_STATE.DYING:
+        return 'var(--cell-color-dying, #ffff00)';
+      case CELL_STATE.DEAD:
+      default:
+        return 'transparent';
+    }
   };
 
   const getCellFromPool = (): HTMLDivElement => {
@@ -31,7 +44,8 @@ export function useCellRenderer() {
 
   const renderCell = (
     container: HTMLElement,
-    coordinate: Coordinate
+    coordinate: Coordinate,
+    state: CellState = CELL_STATE.ALIVE
   ): HTMLDivElement => {
     const key = `${coordinate.row},${coordinate.col}`;
     let cell = activeCells.get(key);
@@ -43,6 +57,9 @@ export function useCellRenderer() {
       container.appendChild(cell);
       activeCells.set(key, cell);
     }
+
+    // Update cell color based on state
+    cell.style.backgroundColor = getCellColor(state);
 
     return cell;
   };

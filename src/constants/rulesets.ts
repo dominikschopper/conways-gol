@@ -4,7 +4,8 @@ import { RULE_NAME } from '@/core/types/Rules';
 export const RULESET_ROUTES = {
   [RULE_NAME.CONWAY]: 'conway',
   [RULE_NAME.HIGHLIFE]: 'highlife',
-  [RULE_NAME.SEEDS]: 'seeds'
+  [RULE_NAME.SEEDS]: 'seeds',
+  [RULE_NAME.REANIMATION]: 'reanimation'
 } as const;
 
 export type RulesetRoute = typeof RULESET_ROUTES[keyof typeof RULESET_ROUTES];

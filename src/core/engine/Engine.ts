@@ -1,7 +1,8 @@
 import type { Coordinate } from '../types/Cell';
+import { CELL_STATE } from '../types/Cell';
 import { Board } from './Board';
 import type { RuleSet } from './RuleSet';
-import { ConwayRuleSet } from './RuleSet';
+import { ConwayRuleSet, isMultiStateRuleSet } from './RuleSet';
 
 export type EngineState = 'stopped' | 'running' | 'paused'
 
@@ -73,8 +74,8 @@ export class Engine {
   }
 
   step(): void {
-    const nextGeneration = this.calculateNextGeneration();
-    this.board.setState(nextGeneration);
+    const { aliveCells, dyingCells } = this.calculateNextGeneration();
+    this.board.setState(aliveCells, dyingCells);
     this.board.incrementGeneration();
     this.onTickCallback?.();
   }
@@ -104,23 +105,42 @@ export class Engine {
     this.onTickCallback = callback;
   }
 
-  private calculateNextGeneration(): Coordinate[] {
-    const nextGen: Coordinate[] = [];
+  private calculateNextGeneration(): { aliveCells: Coordinate[], dyingCells: Coordinate[] } {
+    const aliveCells: Coordinate[] = [];
+    const dyingCells: Coordinate[] = [];
 
-    // Evaluate all cells that could change
-    for (const cell of this.board.getCellsToEvaluate()) {
-      const isAlive = this.board.isAlive(cell);
-      const neighborCount = this.board.getNeighborCount(cell);
+    // Check if this is a multi-state ruleset
+    if (isMultiStateRuleSet(this.ruleSet)) {
+      // Multi-state logic: use getNextState()
+      for (const cell of this.board.getCellsToEvaluate()) {
+        const currentState = this.board.getCellState(cell);
+        const neighborCount = this.board.getNeighborCount(cell);
+        const nextState = this.ruleSet.getNextState(currentState, neighborCount);
 
-      const shouldLive = isAlive
-        ? this.ruleSet.shouldSurvive(neighborCount)
-        : this.ruleSet.shouldBeBorn(neighborCount);
-
-      if (shouldLive) {
-        nextGen.push(cell);
+        if (nextState === CELL_STATE.ALIVE) {
+          aliveCells.push(cell);
+        } else if (nextState === CELL_STATE.DYING) {
+          dyingCells.push(cell);
+        }
+        // DEAD cells are not added to either array (sparse storage)
       }
+    } else {
+      // 2-state logic: use shouldSurvive() and shouldBeBorn()
+      for (const cell of this.board.getCellsToEvaluate()) {
+        const isAlive = this.board.isAlive(cell);
+        const neighborCount = this.board.getNeighborCount(cell);
+
+        const shouldLive = isAlive
+          ? this.ruleSet.shouldSurvive(neighborCount)
+          : this.ruleSet.shouldBeBorn(neighborCount);
+
+        if (shouldLive) {
+          aliveCells.push(cell);
+        }
+      }
+      // No dying cells in 2-state rulesets
     }
 
-    return nextGen;
+    return { aliveCells, dyingCells };
   }
 }

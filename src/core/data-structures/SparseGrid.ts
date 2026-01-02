@@ -1,4 +1,4 @@
-import { type Coordinate, coord, coordHash } from '../types/Cell';
+import { type Coordinate, coord, coordHash, CELL_STATE, type CellState } from '../types/Cell';
 import type { BoardConfig } from '../types/Board';
 import { CellSet } from './CellSet';
 
@@ -8,11 +8,13 @@ import { CellSet } from './CellSet';
  */
 export class SparseGrid {
   private livingCells: CellSet;
+  private dyingCells: CellSet;
   private neighborCounts: Map<string, number>; // Hash -> count
   private config?: BoardConfig;
 
   constructor(initialCells?: Coordinate[], config?: BoardConfig) {
     this.livingCells = new CellSet(initialCells);
+    this.dyingCells = new CellSet();
     this.neighborCounts = new Map();
     this.config = config;
     this.recalculateNeighborCounts();
@@ -22,18 +24,37 @@ export class SparseGrid {
     return this.livingCells.has(coordinate);
   }
 
+  isDying(coordinate: Coordinate): boolean {
+    return this.dyingCells.has(coordinate);
+  }
+
   setAlive(coordinate: Coordinate): void {
     if (!this.livingCells.has(coordinate)) {
       this.livingCells.add(coordinate);
+      this.dyingCells.delete(coordinate); // Remove from dying if present
       this.incrementNeighbors(coordinate);
     }
   }
 
+  setDying(coordinate: Coordinate): void {
+    if (!this.dyingCells.has(coordinate)) {
+      // Dying cells don't count as neighbors, so decrement if was alive
+      const wasAlive = this.livingCells.has(coordinate);
+      if (wasAlive) {
+        this.livingCells.delete(coordinate);
+        this.decrementNeighbors(coordinate);
+      }
+      this.dyingCells.add(coordinate);
+    }
+  }
+
   setDead(coordinate: Coordinate): void {
-    if (this.livingCells.has(coordinate)) {
+    const wasAlive = this.livingCells.has(coordinate);
+    if (wasAlive) {
       this.livingCells.delete(coordinate);
       this.decrementNeighbors(coordinate);
     }
+    this.dyingCells.delete(coordinate); // Also remove from dying
   }
 
   toggle(coordinate: Coordinate): void {
@@ -52,12 +73,31 @@ export class SparseGrid {
     return this.livingCells.toArray();
   }
 
-  // Get all cells that need to be evaluated (living cells + their neighbors)
+  getDyingCells(): Coordinate[] {
+    return this.dyingCells.toArray();
+  }
+
+  getState(coordinate: Coordinate): CellState {
+    if (this.livingCells.has(coordinate)) {
+      return CELL_STATE.ALIVE;
+    }
+    if (this.dyingCells.has(coordinate)) {
+      return CELL_STATE.DYING;
+    }
+    return CELL_STATE.DEAD;
+  }
+
+  // Get all cells that need to be evaluated (living cells + dying cells + their neighbors)
   getCellsToEvaluate(): Coordinate[] {
     const cells = new Set<string>();
 
     // Add all living cells
     for (const cell of this.livingCells) {
+      cells.add(coordHash(cell));
+    }
+
+    // Add all dying cells (they can be reanimated)
+    for (const cell of this.dyingCells) {
       cells.add(coordHash(cell));
     }
 
@@ -74,6 +114,7 @@ export class SparseGrid {
 
   clear(): void {
     this.livingCells.clear();
+    this.dyingCells.clear();
     this.neighborCounts.clear();
   }
 

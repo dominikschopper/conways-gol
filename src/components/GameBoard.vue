@@ -2,12 +2,13 @@
 import { ref, watch, onMounted, computed } from 'vue'
 import type { Coordinate } from '@/core'
 import { useCellRenderer } from '@/composables/useCellRenderer'
-import { coord } from '@/core'
+import { coord, CELL_STATE } from '@/core'
 
 const props = defineProps<{
   rows: number
   cols: number
   livingCells: Coordinate[]
+  dyingCells?: Coordinate[]
 }>()
 
 const emit = defineEmits<{
@@ -49,37 +50,57 @@ watch(() => [props.rows, props.cols] as const, () => {
 
   clearAllCells();
   renderedCells.clear();
-  // Re-render current living cells
+  // Re-render current living and dying cells
   if (boardRef.value) {
     for (const cell of props.livingCells) {
       const key = `${cell.row},${cell.col}`;
-      renderCell(boardRef.value, cell);
+      renderCell(boardRef.value, cell, CELL_STATE.ALIVE);
       renderedCells.add(key);
+    }
+    if (props.dyingCells) {
+      for (const cell of props.dyingCells) {
+        const key = `${cell.row},${cell.col}`;
+        renderCell(boardRef.value, cell, CELL_STATE.DYING);
+        renderedCells.add(key);
+      }
     }
   }
 }, { immediate: true })
 
 // Render cells when they change
-watch(() => props.livingCells, (newCells, oldCells) => {
+watch(() => [props.livingCells, props.dyingCells] as const, ([newLiving, newDying], [oldLiving, oldDying]) => {
   if (!boardRef.value) return
 
-  const newSet = new Set(newCells.map(c => `${c.row},${c.col}`))
-  const oldSet = new Set(oldCells?.map(c => `${c.row},${c.col}`) ?? [])
+  const newLivingSet = new Set(newLiving.map(c => `${c.row},${c.col}`))
+  const oldLivingSet = new Set(oldLiving?.map(c => `${c.row},${c.col}`) ?? [])
+  const newDyingSet = new Set(newDying?.map(c => `${c.row},${c.col}`) ?? [])
+  const oldDyingSet = new Set(oldDying?.map(c => `${c.row},${c.col}`) ?? [])
 
-  // Remove dead cells
-  for (const key of oldSet) {
-    if (!newSet.has(key)) {
+  // Combined set of all cells that should be rendered
+  const newAllSet = new Set([...newLivingSet, ...newDyingSet])
+  const oldAllSet = new Set([...oldLivingSet, ...oldDyingSet])
+
+  // Remove cells that are no longer alive or dying
+  for (const key of oldAllSet) {
+    if (!newAllSet.has(key)) {
       const [row, col] = key.split(',').map(Number)
       removeCell(coord(row!, col!))
       renderedCells.delete(key)
     }
   }
 
-  // Add new cells
-  for (const cell of newCells) {
+  // Add/update living cells
+  for (const cell of newLiving) {
     const key = `${cell.row},${cell.col}`
-    if (!renderedCells.has(key)) {
-      renderCell(boardRef.value, cell)
+    renderCell(boardRef.value, cell, CELL_STATE.ALIVE)
+    renderedCells.add(key)
+  }
+
+  // Add/update dying cells
+  if (newDying) {
+    for (const cell of newDying) {
+      const key = `${cell.row},${cell.col}`
+      renderCell(boardRef.value, cell, CELL_STATE.DYING)
       renderedCells.add(key)
     }
   }

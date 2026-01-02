@@ -8,7 +8,7 @@ import PatternSelector from '../components/PatternSelector.vue';
 import { useGameSettings } from '../composables/useGameSettings';
 import { useGameBoard } from '../composables/useGameBoard';
 import { useGameEngine } from '../composables/useGameEngine';
-import { ConwayRuleSet, HighLifeRuleSet, SeedsRuleSet, type Pattern, type Coordinate, Board } from '../core';
+import { ConwayRuleSet, HighLifeRuleSet, SeedsRuleSet, ReanimationRuleSet, type Pattern, type Coordinate, Board } from '../core';
 import { RULESET_ROUTES } from '../constants/rulesets';
 import { RULE_NAME } from '../core/types/Rules';
 
@@ -23,6 +23,7 @@ const patternsOpen = ref(true);
 const conwayRuleSet = new ConwayRuleSet();
 const highLifeRuleSet = new HighLifeRuleSet();
 const seedsRuleSet = new SeedsRuleSet();
+const reanimationRuleSet = new ReanimationRuleSet();
 
 // Determine ruleset from route
 const rulesetName = computed(() => route.params.ruleset as string);
@@ -54,6 +55,14 @@ const rulesetConfig = computed(() => {
         showConwayPatterns: true,
         showHighLifePatterns: false
       };
+    case RULESET_ROUTES[RULE_NAME.REANIMATION]:
+      return {
+        title: 'Reanimation',
+        notation: '3-State',
+        ruleSet: reanimationRuleSet,
+        showConwayPatterns: true,
+        showHighLifePatterns: false
+      };
     default:
       return null;
   }
@@ -75,6 +84,7 @@ const { rows, cols, wraparound, config, updateSettings } = useGameSettings({
 const {
   board,
   livingCells,
+  dyingCells,
   generation,
   livingCellCount,
   toggleCell,
@@ -216,6 +226,7 @@ const handleSpeedChange = (event: Event) => {
           :rows="rows"
           :cols="cols"
           :living-cells="livingCells"
+          :dying-cells="dyingCells"
           @toggle-cell="toggleCell"
         />
       </main>

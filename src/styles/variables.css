@@ -10,6 +10,7 @@
   --board-bg: #0a0a0a;
   --grid-color: rgba(255, 255, 255, 0.05);
   --cell-color: #00ff41;
+  --cell-color-dying: #d9d928;
 
   /* Cell Size Constraints */
   --cell-size-min: 3px;
