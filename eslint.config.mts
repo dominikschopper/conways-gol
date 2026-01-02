@@ -23,8 +23,11 @@ export default tseslint.config(
         argsIgnorePattern: '^_',
         varsIgnorePattern: '^_'
       }],
-      'semi': ['error', 'always'],
-      '@/semi': ['error', 'always'],
+      'semi': ['error', 'always']
     }
+  },
+  {
+    files: ['*.mts', '*.cts', '*.js', '*.cjs', '*.mjs'],
+    extends: [tseslint.configs.disableTypeChecked]
   }
 );
