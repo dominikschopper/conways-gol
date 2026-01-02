@@ -17,3 +17,9 @@ a, a:hover, a:link, a:visited, a:active {
 a:hover {
   text-decoration-style: wavy;
 }
+
+
+.btn{
+  display:inline-flex;
+  align-items: center;
+}

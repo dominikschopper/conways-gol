@@ -95,8 +95,8 @@ const navigateTo = (route: string) => {
             <span class="notation">{{ ruleset.notation }}</span>
           </div>
 
-          <button class="card-cta" :style="{ background: ruleset.color }">
-            Explore {{ ruleset.name }} →
+          <button class="btn card-cta" :style="{ background: ruleset.color }">
+            Explore {{ ruleset.name }} <i aria-hidden="true" class="symb">arrow_right_alt</i>
           </button>
         </div>
       </div>
@@ -189,15 +189,15 @@ const navigateTo = (route: string) => {
 }
 
 .ruleset-card {
-  flex: 1 1 350px;
-  max-width: 400px;
+  flex: 1 1 250px;
+  max-width: 350px;
   display:flex;
   flex-direction: column;
   justify-content: space-between;
   background: var(--bg-secondary);
   border: 2px solid var(--border-color);
   border-radius: 12px;
-  padding: 2rem;
+  padding: 1rem;
   cursor: pointer;
   transition: all 0.3s ease;
 }
