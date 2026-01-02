@@ -1,0 +1,118 @@
+@startuml rendering-system
+!theme plain
+skinparam classStyle rectangle
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+
+title DOM Rendering System
+
+package "DOM Rendering (Vue Composable)" #LightBlue {
+  class useCellRenderer {
+    - cellPool: Map<string, HTMLElement>
+    - cellSize: Ref<number>
+    ---
+    + renderCell(coord: Coordinate, container: HTMLElement): void
+    + removeCell(coord: Coordinate): void
+    + clearAllCells(): void
+    + updateCellSize(size: number): void
+    - getOrCreateCell(key: string): HTMLElement
+    - returnCellToPool(key: string, element: HTMLElement): void
+  }
+
+  class "Map<string, HTMLElement>" as CellPool {
+    Flyweight pattern
+    Reusable DOM elements
+    ---
+    Key: "row,col"
+    Value: <div> element
+  }
+}
+
+package "Browser APIs" #white {
+  class HTMLElement <<external>> {
+    + style: CSSStyleDeclaration
+    + classList: DOMTokenList
+  }
+
+  class "DOM Container" as Container <<external>> {
+    Grid container element
+  }
+}
+
+' Relationships
+useCellRenderer *-- CellPool : manages pool
+useCellRenderer ..> HTMLElement : creates/reuses
+useCellRenderer ..> Container : appends to
+
+note right of useCellRenderer
+  **Flyweight Pattern:**
+
+  Reuses DOM elements from pool
+  instead of creating/destroying
+  on every render cycle
+
+  Benefits:
+  - Reduces GC pressure
+  - Faster rendering
+  - Smoother animations
+
+  **Vue Composable:**
+
+  Returns reactive refs and methods
+  for use in Vue components
+end note
+
+note right of CellPool
+  **Pool Management:**
+
+  When cells are removed from the grid,
+  their DOM elements are kept in the
+  pool instead of being destroyed.
+
+  When new cells need to be rendered,
+  elements are reused from the pool.
+
+  This avoids the cost of:
+  - createElement()
+  - appendChild()
+  - DOM reflows
+end note
+
+note bottom of useCellRenderer
+  **Rendering Flow:**
+
+  1. renderCell(coord, container)
+     - Check if cell exists in pool
+     - If yes: reuse element
+     - If no: create new element
+     - Update position (top, left)
+     - Add to container
+
+  2. removeCell(coord)
+     - Find cell element
+     - Hide or remove from DOM
+     - Return to pool for reuse
+
+  3. updateCellSize(size)
+     - Update all cell dimensions
+     - Recalculate positions
+end note
+
+note left of HTMLElement
+  **Cell Element Structure:**
+
+  <div class="cell"
+       style="
+         position: absolute;
+         top: {row * cellSize}px;
+         left: {col * cellSize}px;
+         width: {cellSize}px;
+         height: {cellSize}px;
+       ">
+  </div>
+
+  Positioned absolutely within
+  the grid container.
+end note
+
+@enduml

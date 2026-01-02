@@ -52,7 +52,7 @@ This separation ensures:
 
 ### High-Level Architecture
 
-![High-Level Components](high-level-components.puml)
+![High-Level Components](diagrams/high-level-components.puml)
 
 This diagram shows the overall structure:
 - **App.vue**: Central orchestrator composing state and UI
@@ -60,11 +60,11 @@ This diagram shows the overall structure:
 - **UI Components**: Five components for different UI concerns
 - **Core Logic**: Game engine and data structures
 
-[View Diagram](high-level-components.puml)
+[View Diagram](diagrams/high-level-components.puml)
 
 ### Mid-Level Architecture
 
-![Mid-Level Components](mid-level-components.puml)
+![Mid-Level Components](diagrams/mid-level-components.puml)
 
 This diagram details:
 - Component props and events (interfaces)
@@ -72,32 +72,138 @@ This diagram details:
 - Communication patterns between layers
 - Core module integration points
 
-[View Diagram](mid-level-components.puml)
+[View Diagram](diagrams/mid-level-components.puml)
 
-### Low-Level Architecture
+### Systems Architecture (Domain-Based)
 
-![Low-Level Components](low-level-components.puml)
+The low-level architecture is organized by domain into separate diagrams for better clarity:
 
-This diagram shows the internal structure:
-- Engine, Board, SparseGrid class relationships
-- RuleSet interface and implementations
-- Pattern system architecture
-- DOM rendering optimization (useCellRenderer)
-- Performance optimization strategies
+#### Systems Overview
 
-[View Diagram](low-level-components.puml)
+![Systems Overview](diagrams/systems-overview.puml)
+
+High-level view showing how the four main systems interact:
+- **Board System**: Cell state management and grid operations
+- **Game Engine System**: Game loop and rule application
+- **Pattern System**: Pattern library and placement
+- **Rendering System**: DOM rendering with optimizations
+
+[View Diagram](diagrams/systems-overview.puml)
+
+#### Board & Grid Management
+
+![Board System](diagrams/board-system.puml)
+
+Detailed view of the board system:
+- Board, SparseGrid, and NeighborCounter classes
+- Sparse storage using Set and Map data structures
+- Neighbor count caching optimization
+- Wraparound topology handling
+
+[View Diagram](diagrams/board-system.puml)
+
+#### Game Engine & Rules
+
+![Game Engine System](diagrams/game-engine-system.puml)
+
+Game loop and rule system architecture:
+- Engine class with requestAnimationFrame loop
+- RuleSet strategy pattern
+- Conway's Game of Life (B3/S23) rules
+- HighLife (B36/S23) variant
+- State management (stopped/running/paused)
+
+[View Diagram](diagrams/game-engine-system.puml)
+
+#### Pattern Library
+
+![Pattern System](diagrams/pattern-system.puml)
+
+Pattern management system:
+- Pattern class for placement logic
+- PatternLibrary with predefined patterns
+- Pattern definition format
+- Board integration for cell placement
+
+[View Diagram](diagrams/pattern-system.puml)
+
+#### DOM Rendering
+
+![Rendering System](diagrams/rendering-system.puml)
+
+DOM rendering optimization:
+- useCellRenderer composable
+- Flyweight pattern with element pooling
+- Cell pool management
+- Performance benefits (reduced GC, faster rendering)
+
+[View Diagram](diagrams/rendering-system.puml)
 
 ## Data Flow
 
-![Data Flow](data-flow.puml)
+The application's data flow is organized into separate interaction scenarios:
 
-This sequence diagram illustrates:
-1. **Initial Setup**: App creates composables in dependency order
-2. **User Interactions**: Click events, control actions, settings changes
-3. **Game Loop**: Automatic state updates via requestAnimationFrame
-4. **Reactivity**: How Vue's reactivity system propagates changes
+### Application Initialization
 
-[View Diagram](data-flow.puml)
+![Initialization Flow](diagrams/flow-initialization.puml)
+
+Shows the startup sequence:
+- Composable creation order (Settings → Board → Engine)
+- Dependency chain setup
+- Initial state configuration
+
+[View Diagram](diagrams/flow-initialization.puml)
+
+### User Interactions
+
+![User Interaction Flows](diagrams/flow-user-interactions.puml)
+
+Shows common user interaction patterns:
+- **Toggle Cell**: Click on grid to toggle cell state
+- **Start Game**: Start the simulation engine
+- **Place Pattern**: Select and place predefined patterns
+- Demonstrates unidirectional data flow (events up, props down)
+
+[View Diagram](diagrams/flow-user-interactions.puml)
+
+### Game Loop
+
+![Game Loop Flow](diagrams/flow-game-loop.puml)
+
+Shows the automatic update cycle:
+- requestAnimationFrame loop implementation
+- Generation calculation using RuleSet
+- Callback-based reactivity bridge
+- Performance optimizations (selective cell evaluation)
+
+[View Diagram](diagrams/flow-game-loop.puml)
+
+### Settings Change Cascade
+
+![Settings Change Flow](diagrams/flow-settings-change.puml)
+
+Shows the reactive cascade when settings change:
+- Settings update triggers config computed
+- Board watcher recreates Board instance
+- Engine watcher recreates Engine instance
+- UI components re-render with new state
+- Demonstrates Vue's reactive dependency chain
+
+[View Diagram](diagrams/flow-settings-change.puml)
+
+### Reactivity System Overview
+
+![Reactivity Overview](diagrams/flow-reactivity-overview.puml)
+
+Conceptual overview of Vue 3 reactivity:
+- **Refs**: Direct reactive values
+- **Computed**: Derived reactive values
+- **Watchers**: Side effects on value changes
+- **Props**: Unidirectional data flow down
+- **Events**: Communication flow up
+- **Callbacks**: Bridge between core logic and Vue reactivity
+
+[View Diagram](diagrams/flow-reactivity-overview.puml)
 
 ### Unidirectional Data Flow
 

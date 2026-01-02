@@ -1,0 +1,54 @@
+@startuml flow-initialization
+!theme plain
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+skinparam sequenceMessageAlign center
+
+title Application Initialization Flow
+
+participant "App.vue\nOrchestrator" as App #LightBlue
+participant "useGameSettings\nComposable" as SettingsComp #LightYellow
+participant "useGameBoard\nComposable" as BoardComp #LightYellow
+participant "useGameEngine\nComposable" as EngineComp #LightYellow
+participant "Core Engine\n(Board + Engine)" as Core #LightCoral
+
+== Initial Setup ==
+
+App -> SettingsComp : create composable
+activate SettingsComp
+SettingsComp --> App : returns {rows, cols, wraparound, config, updateSettings}
+deactivate SettingsComp
+
+App -> BoardComp : create composable(config)
+activate BoardComp
+BoardComp -> Core : new Board(config)
+BoardComp --> App : returns {board, livingCells, toggleCell, placePattern, ...}
+deactivate BoardComp
+
+App -> EngineComp : create composable(board, updateState)
+activate EngineComp
+EngineComp -> Core : new Engine(board, ruleSet)
+EngineComp --> App : returns {isRunning, isPaused, start, stop, ...}
+deactivate EngineComp
+
+note over App
+  **Initialization Order:**
+
+  1. Settings composable (independent)
+  2. Board composable (needs config)
+  3. Engine composable (needs board)
+
+  App now has all state and methods
+  ready to pass as props to components
+end note
+
+note over SettingsComp, Core
+  **Dependency Chain:**
+
+  Settings → config → Board → board instance → Engine
+
+  Each composable depends on the output
+  of the previous one in the chain
+end note
+
+@enduml

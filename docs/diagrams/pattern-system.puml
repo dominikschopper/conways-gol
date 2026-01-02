@@ -1,0 +1,113 @@
+@startuml pattern-system
+!theme plain
+skinparam classStyle rectangle
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+
+title Pattern Library System
+
+package "Pattern Management" #LightGreen {
+  class Pattern {
+    - definition: PatternDefinition
+    ---
+    + getName(): string
+    + getDescription(): string
+    + getCells(): Coordinate[]
+    + getWidth(): number
+    + getHeight(): number
+    + placeOnBoard(board: Board, position: Coordinate): void
+  }
+
+  class PatternLibrary {
+    {static} + GLIDER: PatternDefinition
+    {static} + BLINKER: PatternDefinition
+    {static} + TOAD: PatternDefinition
+    {static} + BEACON: PatternDefinition
+    {static} + PULSAR: PatternDefinition
+    {static} + PENTADECATHLON: PatternDefinition
+    {static} + GLIDER_GUN: PatternDefinition
+    ---
+    {static} + getAll(): PatternDefinition[]
+  }
+
+  interface PatternDefinition {
+    + name: string
+    + description: string
+    + cells: Coordinate[]
+  }
+}
+
+package "External Dependencies" #white {
+  class Board <<external>> {
+    + toggle(coord: Coordinate): boolean
+  }
+}
+
+' Relationships
+Pattern o-- PatternDefinition : uses
+PatternLibrary ..> PatternDefinition : provides
+Pattern ..> Board : places cells on
+
+note right of Pattern
+  **Pattern Placement:**
+
+  1. Takes a pattern definition
+  2. Calculates cell positions
+     relative to placement point
+  3. Toggles cells on the board
+
+  Example:
+  pattern.placeOnBoard(board, {row: 5, col: 5})
+end note
+
+note right of PatternLibrary
+  **Static Pattern Repository:**
+
+  Contains common Game of Life patterns:
+
+  **Oscillators:**
+  - Blinker (period 2)
+  - Toad (period 2)
+  - Beacon (period 2)
+  - Pulsar (period 3)
+  - Pentadecathlon (period 15)
+
+  **Spaceships:**
+  - Glider (moves diagonally)
+
+  **Guns:**
+  - Gosper Glider Gun (emits gliders)
+end note
+
+note left of PatternDefinition
+  **Pattern Format:**
+
+  {
+    name: "Glider",
+    description: "...",
+    cells: [
+      {row: 0, col: 1},
+      {row: 1, col: 2},
+      {row: 2, col: 0},
+      {row: 2, col: 1},
+      {row: 2, col: 2}
+    ]
+  }
+
+  Coordinates are relative to
+  the pattern's origin (0,0)
+end note
+
+note bottom of Board
+  **Board Integration:**
+
+  Patterns don't modify the board
+  directly - they use the public
+  toggle() method to place cells.
+
+  This maintains encapsulation and
+  ensures all board invariants are
+  preserved.
+end note
+
+@enduml

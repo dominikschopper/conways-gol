@@ -1,0 +1,135 @@
+@startuml board-system
+!theme plain
+skinparam classStyle rectangle
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+
+title Board & Grid Management System
+
+package "Board Management" #LightYellow {
+  class Board {
+    - grid: SparseGrid
+    - neighborCounter: NeighborCounter
+    - config: BoardConfig
+    - generation: number
+    ---
+    + toggle(coord: Coordinate): boolean
+    + isAlive(coord: Coordinate): boolean
+    + clear(): void
+    + getLivingCells(): Coordinate[]
+    + getNeighborCount(coord: Coordinate): number
+    + getCellsToEvaluate(): Set<string>
+    + getGeneration(): number
+    + incrementGeneration(): void
+    + setState(cells: Set<string>): void
+    + getState(): BoardState
+    - validateCoordinate(coord: Coordinate): boolean
+  }
+
+  class SparseGrid {
+    - livingCells: Set<string>
+    - neighborCounts: Map<string, number>
+    - config: BoardConfig
+    ---
+    + add(coord: Coordinate): boolean
+    + remove(coord: Coordinate): boolean
+    + has(coord: Coordinate): boolean
+    + clear(): void
+    + getLivingCells(): Coordinate[]
+    + getNeighborCount(coord: Coordinate): number
+    + getCellsToEvaluate(): Set<string>
+    + getState(): BoardState
+    - incrementNeighborCounts(coord: Coordinate): void
+    - decrementNeighborCounts(coord: Coordinate): void
+  }
+
+  class NeighborCounter {
+    - config: BoardConfig
+    ---
+    + getNeighborCoordinates(coord: Coordinate): Coordinate[]
+    + countLivingNeighbors(coord: Coordinate, isAlive: (c: Coordinate) => boolean): number
+    - wrapCoordinate(row: number, col: number): Coordinate
+  }
+}
+
+package "Data Structures" #white {
+  class "Set<string>" as CellSet {
+    Living cells storage
+    Key: "row,col"
+  }
+
+  class "Map<string, number>" as NeighborMap {
+    Neighbor counts cache
+    Key: "row,col"
+    Value: neighbor count
+  }
+}
+
+' Relationships
+Board *-- SparseGrid : contains
+Board *-- NeighborCounter : uses
+SparseGrid *-- CellSet : stores cells
+SparseGrid *-- NeighborMap : caches neighbors
+
+note right of Board
+  **Entry Point:**
+
+  Board is the main interface for
+  interacting with the game grid.
+
+  It delegates storage to SparseGrid
+  and neighbor calculations to
+  NeighborCounter.
+end note
+
+note right of SparseGrid
+  **Performance Optimizations:**
+
+  1. **Sparse Storage**: Only stores
+     living cells, not entire grid
+
+  2. **Neighbor Cache**: Pre-computed
+     neighbor counts for cells adjacent
+     to living cells
+
+  3. **Efficient Evaluation**: Returns
+     living cells + cells with neighbors
+     (not entire grid)
+
+  Time Complexity:
+  - Add/Remove: O(1)
+  - getCellsToEvaluate: O(n) where
+    n = living cells + neighbors
+end note
+
+note bottom of NeighborCounter
+  **Wraparound Logic:**
+
+  If wraparound=true:
+    Torus topology (edges wrap)
+    row = (row + rows) % rows
+    col = (col + cols) % cols
+
+  If wraparound=false:
+    Bounded grid
+    Neighbors outside grid ignored
+end note
+
+note bottom of CellSet
+  **String Keys:**
+
+  Coordinates are stored as
+  "row,col" strings for fast
+  Set operations and lookups
+end note
+
+note bottom of NeighborMap
+  **Cache Strategy:**
+
+  Only caches counts for cells
+  adjacent to living cells.
+  Updated incrementally on
+  add/remove operations.
+end note
+
+@enduml

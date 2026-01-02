@@ -1,0 +1,76 @@
+@startuml flow-user-interactions
+!theme plain
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+skinparam sequenceMessageAlign center
+
+title User Interaction Flows
+
+actor User
+participant "GameBoard\nComponent" as GameBoard #LightGreen
+participant "GameControls\nComponent" as GameControls #LightGreen
+participant "PatternSelector\nComponent" as PatternSelector #LightGreen
+participant "App.vue\nOrchestrator" as App #LightBlue
+participant "useGameBoard\nComposable" as BoardComp #LightYellow
+participant "useGameEngine\nComposable" as EngineComp #LightYellow
+participant "Core Engine\n(Board + Engine)" as Core #LightCoral
+
+== Toggle Cell ==
+
+User -> GameBoard : click on cell
+GameBoard -> App : emit toggleCell(coord)
+App -> BoardComp : call toggleCell(coord)
+activate BoardComp
+BoardComp -> Core : board.toggle(coord)
+Core --> BoardComp : cell toggled
+BoardComp -> BoardComp : livingCells computed updates
+BoardComp --> App : reactivity triggers
+deactivate BoardComp
+App -> GameBoard : re-render with new livingCells prop
+GameBoard -> User : updated grid displayed
+
+note right of GameBoard
+  **Unidirectional data flow:**
+  Event up → State change → Props down
+end note
+
+== Start Game ==
+
+User -> GameControls : click start button
+GameControls -> App : emit start()
+App -> EngineComp : call start()
+activate EngineComp
+EngineComp -> Core : engine.start()
+EngineComp -> EngineComp : state becomes 'running'
+EngineComp --> App : isRunning computed updates
+deactivate EngineComp
+App -> GameControls : re-render with isRunning=true prop
+GameControls -> User : button state updated
+
+== Place Pattern ==
+
+User -> PatternSelector : select pattern and click grid
+PatternSelector -> App : emit selectPattern(pattern, position)
+App -> BoardComp : call placePattern(pattern, position)
+activate BoardComp
+BoardComp -> Core : pattern.placeOnBoard(board, position)
+Core -> Core : toggle multiple cells
+Core --> BoardComp : cells placed
+BoardComp -> BoardComp : livingCells computed updates
+BoardComp --> App : reactivity triggers
+deactivate BoardComp
+App -> GameBoard : re-render with new livingCells
+GameBoard -> User : pattern displayed on grid
+
+note over App
+  **Common Pattern:**
+
+  1. User action in component
+  2. Component emits event to App
+  3. App calls composable method
+  4. Composable updates state
+  5. Vue reactivity updates props
+  6. Component re-renders
+end note
+
+@enduml

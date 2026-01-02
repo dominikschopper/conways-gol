@@ -1,0 +1,69 @@
+@startuml flow-game-loop
+!theme plain
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+skinparam sequenceMessageAlign center
+
+title Game Loop - Automatic Updates
+
+participant "Core Engine\n(Board + Engine)" as Core #LightCoral
+participant "useGameBoard\nComposable" as BoardComp #LightYellow
+participant "App.vue\nOrchestrator" as App #LightBlue
+participant "GameBoard\nComponent" as GameBoard #LightGreen
+participant "GenerationCounter\nComponent" as Counter #LightGreen
+
+== Game Loop: Automatic Updates ==
+
+Core -> Core : requestAnimationFrame loop
+activate Core
+note right
+  **Game Loop Steps:**
+
+  1. Check elapsed time vs tickRate
+  2. If enough time passed:
+     - Calculate next generation
+     - Update board state
+     - Trigger callback
+end note
+
+Core -> Core : calculateNextGeneration()
+note right
+  Uses RuleSet to evaluate:
+  - Living cells (survival)
+  - Dead cells with neighbors (birth)
+end note
+
+Core -> Core : board.setState(nextCells)
+Core -> BoardComp : call updateState() callback
+deactivate Core
+
+activate BoardComp
+note right of BoardComp
+  **updateState callback:**
+
+  Bridge between core logic
+  and Vue reactivity system
+end note
+
+BoardComp -> BoardComp : livingCells computed updates
+BoardComp -> BoardComp : generation ref increments
+BoardComp --> App : reactivity triggers
+deactivate BoardComp
+
+App -> GameBoard : re-render with new livingCells
+App -> Counter : re-render with new generation
+
+note over Core, Counter
+  **Performance:**
+
+  requestAnimationFrame ensures:
+  - Synced with display refresh
+  - Paused when tab inactive
+  - Smooth animations
+
+  Only evaluates cells that can change:
+  - Living cells (might die)
+  - Cells with neighbors (might be born)
+end note
+
+@enduml

@@ -1,0 +1,118 @@
+@startuml game-engine-system
+!theme plain
+skinparam classStyle rectangle
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+
+title Game Engine & Rules System
+
+package "Game Engine" #LightCoral {
+  class Engine {
+    - board: Board
+    - ruleSet: RuleSet
+    - config: EngineConfig
+    - state: EngineState
+    - lastTickTime: number
+    - rafId: number | null
+    - onStateChange?: () => void
+    ---
+    + start(): void
+    + stop(): void
+    + pause(): void
+    + resume(): void
+    + step(): void
+    + getState(): EngineState
+    + setTickRate(rate: number): void
+    - gameLoop(): void
+    - calculateNextGeneration(): Set<string>
+  }
+
+  interface RuleSet {
+    + shouldSurvive(neighborCount: number): boolean
+    + shouldBeBorn(neighborCount: number): boolean
+    + getName(): string
+  }
+
+  class ConwayRuleSet {
+    + shouldSurvive(neighborCount: number): boolean
+    + shouldBeBorn(neighborCount: number): boolean
+    + getName(): string
+  }
+
+  class HighLifeRuleSet {
+    + shouldSurvive(neighborCount: number): boolean
+    + shouldBeBorn(neighborCount: number): boolean
+    + getName(): string
+  }
+}
+
+' Relationships
+Engine o-- RuleSet : uses
+RuleSet <|.. ConwayRuleSet : implements
+RuleSet <|.. HighLifeRuleSet : implements
+
+note right of Engine
+  **Game Loop:**
+
+  1. Uses requestAnimationFrame
+  2. Checks elapsed time vs tickRate
+  3. Calls calculateNextGeneration()
+  4. Updates board state
+  5. Calls onStateChange callback
+
+  **Optimization:**
+
+  Only evaluates cells in getCellsToEvaluate()
+  (living cells + cells with neighbors)
+end note
+
+note right of RuleSet
+  **Strategy Pattern:**
+
+  RuleSet allows swapping different
+  cellular automaton rules without
+  changing the Engine implementation.
+
+  Each rule defines:
+  - Birth conditions
+  - Survival conditions
+end note
+
+note bottom of ConwayRuleSet
+  **Conway's Game of Life (B3/S23):**
+
+  Birth: exactly 3 neighbors
+  Survival: 2-3 neighbors
+
+  This is the classic Game of Life
+  rule set discovered by John Conway.
+end note
+
+note bottom of HighLifeRuleSet
+  **HighLife (B36/S23):**
+
+  Birth: 3 or 6 neighbors
+  Survival: 2-3 neighbors
+
+  HighLife extends Conway's rules
+  with an additional birth condition
+  at 6 neighbors, creating interesting
+  replicating patterns.
+end note
+
+note left of Engine
+  **Engine States:**
+
+  - STOPPED: Not running
+  - RUNNING: Active game loop
+  - PAUSED: Temporarily stopped
+
+  **State Transitions:**
+
+  STOPPED → start() → RUNNING
+  RUNNING → pause() → PAUSED
+  PAUSED → resume() → RUNNING
+  RUNNING/PAUSED → stop() → STOPPED
+end note
+
+@enduml

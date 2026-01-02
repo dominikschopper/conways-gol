@@ -1,0 +1,66 @@
+@startuml systems-overview
+!theme plain
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+
+title Conway's Game of Life - Systems Overview
+
+package "Board System" as BoardSys #LightYellow {
+  component "Board Management" as Board
+  component "Sparse Grid Storage" as Grid
+  component "Neighbor Counting" as Neighbors
+}
+
+package "Game Engine System" as EngineSys #LightCoral {
+  component "Game Loop" as Loop
+  component "Rule Engine" as Rules
+}
+
+package "Pattern System" as PatternSys #LightGreen {
+  component "Pattern Library" as Library
+  component "Pattern Placement" as Placement
+}
+
+package "Rendering System" as RenderSys #LightBlue {
+  component "Cell Renderer" as Renderer
+  component "DOM Pool" as Pool
+}
+
+' System interactions
+EngineSys --> BoardSys : reads state\ncalculates next gen
+PatternSys --> BoardSys : places patterns
+RenderSys --> BoardSys : renders cells
+BoardSys ..> EngineSys : provides board instance
+
+note right of BoardSys
+  **Responsibilities:**
+  - Manage cell state (alive/dead)
+  - Count neighbors efficiently
+  - Validate coordinates
+  - Provide sparse grid storage
+end note
+
+note right of EngineSys
+  **Responsibilities:**
+  - Run game loop (RAF)
+  - Apply cellular automaton rules
+  - Manage engine state
+  - Control tick rate
+end note
+
+note left of PatternSys
+  **Responsibilities:**
+  - Define common patterns
+  - Calculate pattern cells
+  - Place on board
+end note
+
+note left of RenderSys
+  **Responsibilities:**
+  - Render cells to DOM
+  - Pool DOM elements
+  - Update cell positions
+  - Optimize rendering
+end note
+
+@enduml

@@ -1,0 +1,118 @@
+@startuml flow-reactivity-overview
+!theme plain
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+
+title Vue 3 Reactivity System Overview
+
+package "Reactive Primitives" #LightYellow {
+  component "Refs" as Refs #LightYellow
+  note right of Refs
+    rows: Ref
+    cols: Ref
+    generation: Ref
+    tickRate: Ref
+  end note
+
+  component "Computed" as Computed #LightYellow
+  note right of Computed
+    config: ComputedRef
+    livingCells: ComputedRef
+    isRunning: ComputedRef
+    isPaused: ComputedRef
+  end note
+
+  component "Watchers" as Watchers #LightYellow
+  note right of Watchers
+    watch(config, ...)
+    watch(board, ...)
+  end note
+}
+
+package "Component Communication" #LightGreen {
+  component "Props" as Props #LightGreen
+  note right of Props
+    Read-only
+    Flow down from parent
+    Reactive updates
+  end note
+
+  component "Events" as Events #LightGreen
+  note right of Events
+    Flow up to parent
+    Non-reactive
+    Trigger state changes
+  end note
+}
+
+package "Core Integration" #LightCoral {
+  component "Callbacks" as Callbacks #LightCoral
+  note right of Callbacks
+    updateState()
+    onStateChange()
+  end note
+}
+
+Refs --> Computed : "dependencies"
+Computed --> Props : "passed to components"
+Events --> Refs : "trigger updates"
+Watchers --> Refs : "observe changes"
+Callbacks --> Refs : "trigger reactivity"
+
+note bottom of Refs
+  **Direct Reactive Values:**
+  Mutable (.value), trigger updates on change
+
+  Example:
+  const rows = ref(50)
+  rows.value = 100 // triggers update
+end note
+
+note bottom of Computed
+  **Derived Reactive Values:**
+  Auto-recompute when dependencies change
+  Cached until invalidated
+
+  Example:
+  const config = computed(() => ({
+    rows: rows.value,
+    cols: cols.value
+  }))
+end note
+
+note bottom of Watchers
+  **Side Effects:**
+  Run code when values change
+  Used for recreating objects
+
+  Example:
+  watch(config, (newConfig) => {
+    board = new Board(newConfig)
+  })
+end note
+
+note bottom of Props
+  **Unidirectional Flow:**
+  Parent passes data down
+  Child cannot modify
+  Child emits events up
+end note
+
+note bottom of Events
+  **Event Flow:**
+  Flow up from child to parent
+  Trigger state changes in parent
+end note
+
+note bottom of Callbacks
+  **Bridge to Core Logic:**
+  Core has no Vue dependencies
+  Callbacks trigger reactivity
+
+  Example:
+  engine.onStateChange = () => {
+    updateState() // triggers refs
+  }
+end note
+
+@enduml

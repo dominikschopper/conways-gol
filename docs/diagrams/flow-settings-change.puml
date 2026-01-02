@@ -1,0 +1,89 @@
+@startuml flow-settings-change
+!theme plain
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+skinparam sequenceMessageAlign center
+
+title Settings Change - Reactive Cascade
+
+actor User
+participant "GameSettings\nComponent" as GameSettings #LightGreen
+participant "App.vue\nOrchestrator" as App #LightBlue
+participant "useGameSettings\nComposable" as SettingsComp #LightYellow
+participant "useGameBoard\nComposable" as BoardComp #LightYellow
+participant "useGameEngine\nComposable" as EngineComp #LightYellow
+participant "Core Engine\n(Board + Engine)" as Core #LightCoral
+participant "GameBoard\nComponent" as GameBoard #LightGreen
+participant "GenerationCounter\nComponent" as Counter #LightGreen
+
+== User Changes Settings ==
+
+User -> GameSettings : change rows/cols/wraparound
+GameSettings -> App : emit update:settings(newConfig)
+App -> SettingsComp : call updateSettings(newConfig)
+
+activate SettingsComp
+SettingsComp -> SettingsComp : update rows, cols, wraparound refs
+SettingsComp -> SettingsComp : config computed updates
+SettingsComp --> App : reactivity triggers
+deactivate SettingsComp
+
+note over BoardComp
+  **Watcher triggered:**
+
+  watch(config, ...)
+
+  Detects config change
+  and recreates board
+end note
+
+== Cascade: Board Recreation ==
+
+BoardComp -> BoardComp : watcher detects config change
+activate BoardComp
+BoardComp -> Core : create new Board(newConfig)
+BoardComp -> BoardComp : clear livingCells
+BoardComp -> BoardComp : reset generation to 0
+BoardComp --> App : reactivity triggers
+deactivate BoardComp
+
+note over EngineComp
+  **Watcher triggered:**
+
+  watch(board, ...)
+
+  Detects board change
+  and recreates engine
+end note
+
+== Cascade: Engine Recreation ==
+
+EngineComp -> EngineComp : watcher detects board change
+activate EngineComp
+EngineComp -> Core : create new Engine(newBoard)
+note right
+  Preserves tickRate
+  but resets state to 'stopped'
+end note
+EngineComp --> App : reactivity triggers
+deactivate EngineComp
+
+== UI Updates ==
+
+App -> GameBoard : re-render with new dimensions
+App -> Counter : re-render with generation=0
+
+note over SettingsComp, Counter
+  **Reactive Cascade:**
+
+  1. Settings update
+  2. config (computed) updates
+  3. Board watcher → new Board
+  4. Engine watcher → new Engine
+  5. All components re-render
+
+  Ensures consistency:
+  Settings → Board → Engine
+end note
+
+@enduml
