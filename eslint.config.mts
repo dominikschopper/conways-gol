@@ -2,6 +2,7 @@ import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import globals from 'globals';
 import pluginVue from 'eslint-plugin-vue';
+import vueParser from 'vue-eslint-parser';
 
 export default tseslint.config(
   eslint.configs.recommended,
@@ -24,6 +25,18 @@ export default tseslint.config(
         varsIgnorePattern: '^_'
       }],
       'semi': ['error', 'always']
+    }
+  },
+  {
+    files: ['*.vue'],
+    languageOptions: {
+      parser: vueParser,
+      parserOptions: {
+        parser: tseslint.parser,
+        project: './tsconfig.json',
+        tsconfigRootDir: import.meta.dirname,
+        extraFileExtensions: ['.vue']
+      }
     }
   },
   {
