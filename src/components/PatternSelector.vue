@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import type { Pattern, Coordinate } from '@/core';
 import { getConwayPatterns, getHighLifePatterns } from '@/core';
+import InfoTooltip from './InfoTooltip.vue';
 
 const props = defineProps<{
   rows: number
@@ -27,7 +28,7 @@ const patterns = computed(() => {
   }
 
   return result;
-})
+});
 
 // Find a random free position for pattern
 const findRandomPosition = (pattern: Pattern): Coordinate => {
@@ -69,24 +70,19 @@ const placePattern = (pattern: Pattern) => {
 
 <template>
   <section class="pattern-selector">
-    <h2>Patterns</h2>
-
     <div class="pattern-list">
       <div
         v-for="pattern in patterns"
         :key="pattern.getName()"
         class="pattern-item"
       >
-        <div class="pattern-info">
-          <strong>{{ pattern.getName() }}</strong>
-          <span class="pattern-description">{{ pattern.getDescription() }}</span>
-        </div>
         <button
           @click="placePattern(pattern)"
-          class="btn btn-primary btn-small"
+          class="pattern-button"
         >
-          Place
+          {{ pattern.getName() }}
         </button>
+        <InfoTooltip :text="pattern.getDescription()" />
       </div>
     </div>
   </section>
@@ -96,69 +92,37 @@ const placePattern = (pattern: Pattern) => {
 .pattern-selector {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-}
-
-.pattern-selector h2 {
-  margin: 0 0 0.5rem 0;
-  font-size: 1.2rem;
 }
 
 .pattern-list {
   display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: flex-start;
 }
 
 .pattern-item {
   display: flex;
+  gap: 0.25rem;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem;
+}
+
+.pattern-button {
+  padding: 0.5rem 1rem;
   border: 1px solid var(--border-color);
   border-radius: 4px;
-  background: var(--input-bg);
-}
-
-.pattern-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.pattern-info strong {
-  font-size: 0.95rem;
+  background: var(--bg-primary);
   color: var(--text-primary);
-}
-
-.pattern-description {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  font-style: italic;
-}
-
-.btn {
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 4px;
   font-size: 0.9rem;
+  font-weight: 500;
   cursor: pointer;
-  font-weight: 600;
-  transition: opacity 0.2s;
+  transition: all 0.2s;
+  white-space: nowrap;
 }
 
-.btn-small {
-  padding: 0.4rem 0.8rem;
-  font-size: 0.85rem;
-}
-
-.btn-primary {
+.pattern-button:hover {
   background: var(--color-primary);
   color: #000;
-}
-
-.btn-primary:hover {
-  opacity: 0.9;
+  border-color: var(--color-primary);
 }
 </style>
