@@ -237,9 +237,51 @@ const patternParserHash = usePatternParser('#');
 const SUPERSTRING: PatternDefinition = {
   name: 'Superstring',
   description: 'orthogonal row of cells stabilized on one side so that it moves',
-  width: 10,
-  height: 4,
+  width: 46,
+  height: 21,
   cells: superstringDefinition.flatMap(patternParserHash)
+};
+
+const ppsDefinition = [
+  '   #     #',
+  '  # #   # #',
+  '',
+  '  ###   ###',
+  '',
+  '',
+  '',
+  '  ###   ###',
+  '',
+  '# # #   # # #',
+  '   #     #',
+];
+
+const PPS: PatternDefinition = {
+  name: 'PPS',
+  description: 'a pre-pulsar spaceship',
+  width: 13,
+  height: 11,
+  cells: ppsDefinition.flatMap(patternParserHash)
+}
+
+const Diamond4812Definition = [
+  '    ####',
+  '',
+  '  ########',
+  '',
+  '############',
+  '',
+  '  ########',
+  '',
+  '    ####'
+]
+
+const DIAMOND4812: PatternDefinition = {
+  name: '4/8/12 Diamond',
+  description: 'a simple four glider generator',
+  width: 12,
+  height: 9,
+  cells: Diamond4812Definition.flatMap(patternParserHash)
 };
 
 // HighLife-specific patterns
@@ -260,24 +302,21 @@ const REPLICATOR: PatternDefinition = {
   ]
 };
 
+const bomberDefinition = [
+  '  ###',
+  ' #  #',
+  '#   #',
+  '#  #',
+  '###'
+]
+
 // Bomber pattern (HighLife - creates replicators)
 const BOMBER: PatternDefinition = {
   name: 'Bomber',
   description: 'HighLife: Creates a stream of replicators',
   width: 5,
   height: 5,
-  cells: [
-    coord(0, 0),
-    coord(0, 1),
-    coord(1, 0),
-    coord(1, 2),
-    coord(2, 1),
-    coord(2, 2),
-    coord(3, 1),
-    coord(3, 2),
-    coord(4, 3),
-    coord(4, 4)
-  ]
+  cells: bomberDefinition.flatMap(patternParserHash)
 };
 
 // Export pattern library
@@ -291,7 +330,9 @@ export const CONWAY_PATTERNS = {
   GOSPER_GLIDER_GUN: new Pattern(GOSPER_GLIDER_GUN),
   PENTADECATHLON: new Pattern(PENTADECATHLON),
   ACORN: new Pattern(ACORN),
-  SUPERSTRING: new Pattern(SUPERSTRING)
+  SUPERSTRING: new Pattern(SUPERSTRING),
+  PPS: new Pattern(PPS),
+  DIAMOND4812: new Pattern(DIAMOND4812)
 };
 
 export const HIGHLIFE_PATTERNS = {
