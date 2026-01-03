@@ -1,6 +1,7 @@
 import type { PatternDefinition } from '../types/Pattern';
 import { Pattern } from './Pattern';
-import { coord } from '../types/Cell';
+import { coord, Coordinate } from '../types/Cell';
+import { usePatternParser } from './usePatternParser';
 
 // Glider pattern (moves diagonally)
 const GLIDER: PatternDefinition = {
@@ -206,6 +207,41 @@ const ACORN: PatternDefinition = {
   ]
 };
 
+const superstringDefinition = [
+  ' ##',
+  '#  #   #   #   #   #   #   #   #   #   #   #',
+  '    # # # # # # # # # # # # # # # # # # # # #',
+  '#  #   #   #   #   #   #   #   #   #   #   #',
+  ' ###',
+  '  ##',
+  '  ##',
+  '   #',
+  '   #',
+  '   #',
+  '   #',
+  '   #',
+  '   #',
+  '   #',
+  '  ##',
+  '  ##',
+  ' ###',
+  '#  #   #   #   #   #   #   #   #   #   #   #',
+  '    # # # # # # # # # # # # # # # # # # # # #',
+  '#  #   #   #   #   #   #   #   #   #   #   #',
+  ' ##',
+];
+
+const patternParserHash = usePatternParser('#');
+
+// Superstring pattern (Methuselah)
+const SUPERSTRING: PatternDefinition = {
+  name: 'Superstring',
+  description: 'orthogonal row of cells stabilized on one side so that it moves',
+  width: 10,
+  height: 4,
+  cells: superstringDefinition.flatMap(patternParserHash)
+};
+
 // HighLife-specific patterns
 
 // Replicator pattern (HighLife only - B36/S23)
@@ -254,7 +290,8 @@ export const CONWAY_PATTERNS = {
   LWSS: new Pattern(LWSS),
   GOSPER_GLIDER_GUN: new Pattern(GOSPER_GLIDER_GUN),
   PENTADECATHLON: new Pattern(PENTADECATHLON),
-  ACORN: new Pattern(ACORN)
+  ACORN: new Pattern(ACORN),
+  SUPERSTRING: new Pattern(SUPERSTRING)
 };
 
 export const HIGHLIFE_PATTERNS = {
