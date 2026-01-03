@@ -27,7 +27,8 @@ const rulesets = [
   {
     name: 'Reanimation',
     route: `/game/${RULESET_ROUTES[RULE_NAME.REANIMATION]}`,
-    notation: '3-State',
+    notation: 'B36S23R234',
+    description: `My own ruleset with an additional dying state, that can be reanimated with 2, 3 or 4 live cells`,
     color: '#d9d928'
   }
 ];
@@ -102,6 +103,8 @@ const navigateTo = (route: string) => {
             <h3>{{ ruleset.name }}</h3>
             <span class="notation">{{ ruleset.notation }}</span>
           </div>
+
+          <p v-if="ruleset.description">{{ ruleset.description }}</p>
 
           <button class="btn card-cta" :style="{ background: ruleset.color }">
             Explore {{ ruleset.name }} <i aria-hidden="true" class="symb">arrow_right_alt</i>
@@ -208,6 +211,10 @@ const navigateTo = (route: string) => {
   padding: 1rem;
   cursor: pointer;
   transition: all 0.3s ease;
+
+  p {
+    margin: .5rem 0;
+  }
 }
 
 .ruleset-card:hover {
