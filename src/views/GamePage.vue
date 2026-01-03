@@ -193,6 +193,7 @@ const handleSpeedChange = (event: Event) => {
               :wraparound="wraparound"
               :disabled="isRunning"
               @update:settings="handleSettingsChange"
+              @apply="settingsOpen = false"
             />
           </div>
         </div>

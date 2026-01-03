@@ -10,6 +10,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'update:settings': [settings: { rows?: number, cols?: number, wraparound?: boolean }]
+  'apply': []
 }>()
 
 const localRows = ref(props.rows)
@@ -22,6 +23,7 @@ const applySettings = () => {
     cols: localCols.value,
     wraparound: localWraparound.value
   })
+  emit('apply')
 }
 
 const autoSelect = (event: Event) => {
