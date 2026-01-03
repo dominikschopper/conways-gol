@@ -53,6 +53,8 @@ export function useCellRenderer() {
     if (!cell) {
       cell = getCellFromPool();
       cell.style.display = 'block';
+      cell.style.width = `${cellSize.value}px`;
+      cell.style.height = `${cellSize.value}px`;
       cell.style.transform = `translate(${coordinate.col * cellSize.value}px, ${coordinate.row * cellSize.value}px)`;
       container.appendChild(cell);
       activeCells.set(key, cell);

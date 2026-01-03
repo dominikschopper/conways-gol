@@ -65,8 +65,7 @@ const autoSelect = (event: Event) => {
       <label for="wraparound-checkbox">
         <input
           id="wraparound-checkbox"
-          :checked="wraparound"
-          @change="(e) => emit('update:settings', { wraparound: (e.target as HTMLInputElement).checked })"
+          v-model="localWraparound"
           type="checkbox"
           :disabled="disabled"
         />
