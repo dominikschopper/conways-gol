@@ -2,7 +2,7 @@
 
 Eine performante Implementation von Conway's Game of Life mit TypeScript und Vue 3, optimiert durch Sparse Grid Datenstrukturen und Flyweight Pattern.
 
-**[🎮 Live Demo](https://dominikschopper.github.io/conways-gol/)**
+**[Can be viewed on the Repos Github Pages](https://dominikschopper.github.io/conways-gol/)**
 
 ## Features
 
