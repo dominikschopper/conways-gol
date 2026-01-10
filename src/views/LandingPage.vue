@@ -129,14 +129,14 @@ const navigateTo = (route: string) => {
 
 .hero {
   text-align: center;
-  padding: 1.5rem 0;
+  padding: .5rem 0;
   background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
   border-bottom: 1px solid var(--border-color);
 }
 
 .hero-title {
   font-size: 1.666rem;
-  margin: 0 0 0.25rem 0;
+  margin: 0;
   font-weight: 700;
   background: linear-gradient(135deg, var(--color-primary) 0%, #00ff88 100%);
   -webkit-background-clip: text;
@@ -156,15 +156,16 @@ const navigateTo = (route: string) => {
 }
 
 .intro-content h2 {
-  font-size: 1.666rem;
+  font-size: 1rem;
   margin-bottom: .5rem;
   text-align: center;
 }
 
 .intro-content p {
-  font-size: 1rem;
-  margin-bottom: .5rem;
+  font-size: .95rem;
+  margin: 0 .5rem .5rem;
   color: var(--text-secondary);
+
 }
 
 .intro-content strong {
@@ -304,11 +305,11 @@ const navigateTo = (route: string) => {
 
 @media (max-width: 768px) {
   .hero-title {
-    font-size: 2rem;
+    font-size: 1.2rem;
   }
 
   .hero-subtitle {
-    font-size: 1.1rem;
+    font-size: .8rem;
   }
 }
 </style>
